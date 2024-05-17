@@ -1,93 +1,115 @@
 # 10-PJT
 
+## 프로젝트 JENY
 
+### 영화 추천 알고리즘 기반 커뮤니티 서비스
+- 개발도구
+  - Python 3.9.x
+  - Django 4.2.x
+  - Node.js LTS
+  - Vue 3
 
-## Getting started
+- 개발 환경
+  - Django REST framework & Vue
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- 필수 요구사항
+  1. 영화 데이터
+    - 영화 정보 데이터는 최소 50개 이상 존재해야 함
+    - fixtures를 사용하여 언제든 load 될 수 있는 초기 데이터가 있어야 함
+  2. 영화 추천 알고리즘
+    - 사용자는 반드시 최소 1개 이상의 영화를 추천 받을 수 있어야 함
+    - 추천 방식은 자유롭게
+    - 어떠한 방식으로 추천 시스템을 수현했는지 기술적으로 설명 가능해야 함
+  3. API
+    - 사용제한 없음
+  4. 커뮤니티
+    - 유저 간 소통할 수 있는 커뮤니티 기능 구현
+    - 커뮤니티 기능은 반드시 게시판 형식일 필요는 없으며, "소통"이라는 관점 안에서 다양한 방법으로 자유롭게 구현 가능
+  5. README
+    1. 팀원 정보 및 업무 분담 내역
+    2. 목표 서비스 구현 및 실제 구현 정도
+    3. 데이터베이스 모델링 (ERD)
+    4. 영화 추천 알고리즘에 대한 기술적 설명
+    5. 핵심 기능에 대한 설명
+    6. 기타 (느낀점, 후기 등)
+    7. 배포 서버 URL (배포했을 경우)
+  6. 기타
+    - 최소한 5개 이상의 URL 및 페이지를 구성
+    - Django REST framework를 사용하는 경우 사용자 요청에 따라 적절한 HTTP response status code를 응답해야 함
+    - .gitignore 파일을 추가하여 불필요한 파일 및 폴더는 제출하지 않음
+    - 필수 요구사항 외 추가 기능 및 반응형 디자인 등은 자유롭게 수행
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 회고
+### 1일차
 
-## Add your files
+#### 기획
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- Home
+  - navbar -> 항상 고정 (App.view에 존재)
+  - navbar를 제외한 밑 부분은 RouterView로 하위 컴포넌트가 존재
+  - 제일 밑 부분에 footer 존재 (개별 컴포넌트)
+  - navbar에 알림 기능 추가 -> 알림 데이터베이스 필요
+    - 누가 보냈는지 알아야하고, 누가 받았는지 알아야되기 때문
+    - 근데 이걸 실시간으로 어떻게 확인하게 할 것인가?
+    - beforeEach로 컴포넌트 변화가 일어날 때 알림도 반영되게?
+    - 아니면 그냥 해도 실시간으로 반영이 되나?
+    - 배포를 안한다면 로그아웃 로그인이 필요하기 때문에 상관없음
 
-```
-cd existing_repo
-git remote add origin https://lab.ssafy.com/wldmd5007/10-pjt.git
-git branch -M master
-git push -uf origin master
-```
+  - 메인 (하위 컴포넌트 1)
+    - 현재 Top5 영화를 보여주는 회전목마 기능 (컴포넌트)
+      - 버튼을 통해 넘어감
+    - 나만의 추천 (여기부터)
+    - AI 추천
+    - 인기 상영작
+    - 최근 개봉작 (여기까지 컴포넌트 구성은 동일, List 컴포넌트 하위에 Item 컴포넌트 존재)
+      - 포스터, 영화 제목, 개봉일 등의 정보가 함께 표현
+      - 스크롤로 넘어감
+    - 최신 예고편 (여기는 List 컴포넌트 + Item 컴포넌트이지만 모달로 구성되어 클릭 시 모달과 함께 예고편 재생 가능)
+      - 포스터x, 영화 제목과 동영상 함께 표현
+      - 버튼이 아니라 스크롤로 넘어감
 
-## Integrate with your tools
+  - 검색 (하위 컴포넌트 2)
+    - 검색 바 존재
+    - 키워드를 포함한 영화 제목 검색
+    - 영화 정보(컴포넌트)
+      - 영화 포스터, 제목, 장르, 출연자, 연도, 러닝타임, 별점, 간단한 줄거리 함께 표현
+  
+  - 디테일 (하위 컴포넌트 3)
+    - 미리보기 영상 -> 이건 모달이 아니라 그냥 바로 영상을 재생가능하도록
+    - 제목, 연령, 평점, 개봉년도, 러닝타임, 장르, 시청함 버튼, 던지기 버튼 함께 존재
+      - 시청함 버튼과 던지기 버튼이 여기에선 메인
+      - 시청함 버튼 클릭으로 인해 유저가 시청한 영화 목록이 업데이트됨.
+      - 이 작업으로 인해 추천 목록이 변경되게됨. 
+      - 그럼 시청함 버튼 클릭, 시청안함버튼 클릭 이렇게 하면 목록이 계속 변하게되나? -> <b>이걸 조금 더 자세히 상의 필요</b>
+      - 던지기 버튼은 팔로우한 상대방에게 던지는 것
+      - 버튼을 클릭하면 팔로우한 사람 목록이 나오고 그 사람 클릭 시 영화를 던짐
 
-- [ ] [Set up project integrations](https://lab.ssafy.com/wldmd5007/10-pjt/-/settings/integrations)
+    - 콘텐츠 정보, 댓글, 댓글 클라우드 -> 라우터 링크로 구현
+    - 줄거리
+    - 감독 / 출연 배우 -> 프로필과 이름, 나이 등 간단한 정보 표현
 
-## Collaborate with your team
+    - 댓글
+      - 그냥 간단하게 작성자의 이름과 댓글 내용을 목록으로 보여줌
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+    - 댓글 클라우드
+      - 댓글을 기반으로 워드 클라우드를 만들어 영화에 대해 어떤 반응, 어떤 댓글이 가장 많이 보였는지 한 눈에 보여주도록 구현
 
-## Test and Deploy
+  - 유저 프로필 (하위 컴포넌트 4)
+    - 기본적으로 유저 정보 필요
+    - 본인이냐 아니냐에 따라 서로 다른 정보가 페이지에 보여짐
+      - 본인이라면
+        - 유저 정보 부분에 팔로우 / 언팔로우 버튼이 없음
+        - 프로필 수정 버튼이 있음
+        - 프로필 수정 버튼 클릭 시 이름과 간단한 소개를 수정할 수 있어야함.
+        - 기존에 쓰여있던 이름과 간단한 소개는 그대로 표현될 수 있도록 데이터를 같이 가져와야함.
+        - 던진영화, 던짐 받은 영화, 최근 시청한 영화, 마음에 들어 한 영화를 각각의 컴포넌트로 표현
+        - 장르 선호 -> 어떤 장르를 선호하는지 유저 시청 기록과 선호하는 장르 선택 리스트를 파악 후 워드 클라우드로 보여줌
 
-Use the built-in continuous integration in GitLab.
+      - 본인이 아니라면
+        - 프로필 수정 버튼이 없으며 팔로우 / 언팔로우 버튼이 있음
+        - 둘 다 재밌게 본 영화를 띄워줌. 
+        - 마음에 들어 한 영화, 장르선호는 위와 동일하게 표시
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+  
+- 대략적인 일정
+![Alt text](Schedule.png)
