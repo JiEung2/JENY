@@ -3,6 +3,7 @@ import requests
 from django.conf import settings
 from .models import Movie
 from .models import Genre
+from .models import Comment
 
 # Create your views here.
 def getMovieData(request):
