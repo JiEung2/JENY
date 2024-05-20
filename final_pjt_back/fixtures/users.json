@@ -1,0 +1,222 @@
+[
+{
+  "model": "accounts.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$1i0nJiUEBheR0Oe2ogPM9R$xpBPEk3JxN10w2u4W5Utk1Q/M9MxOlUaYvCtGrmtXgE=",
+    "last_login": "2024-05-20T01:46:34.027Z",
+    "is_superuser": false,
+    "username": "user1",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:46:33.693Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$kbryT4dEnev9N0C8Cxmj4I$jpoADVNrfCr1AduvMNrV8VnE9pEr0dvEn/ojIHwhUIc=",
+    "last_login": "2024-05-20T01:46:53.372Z",
+    "is_superuser": false,
+    "username": "user2",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:46:53.062Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$qwyhPZBBSREgMvy5LPpsky$f8EZ+7hQDOa6/DmaTcVlZRMC9Psk0CC/mOAAIwAtSsE=",
+    "last_login": "2024-05-20T01:47:02.223Z",
+    "is_superuser": false,
+    "username": "user3",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:01.908Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$CdNKtbY6FkJXG9WtoZxOXm$L6yKoiGlnTAhNCDod6U34Cxp9y/I3k5RqiGc4QhEvks=",
+    "last_login": "2024-05-20T01:47:10.502Z",
+    "is_superuser": false,
+    "username": "user4",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:10.182Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$vSwNJMgC6dgmJaSuYFcXNu$FVAKXiWb4Vfc+hakzH2P4xUBbirHdfhBRNUh5nx63K0=",
+    "last_login": "2024-05-20T01:47:19.861Z",
+    "is_superuser": false,
+    "username": "user5",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:19.527Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$JxG4VBkrlGM9sX1Awo3akn$6DHCr3lYiK5zzmKnYJM59TIKvdsySxETO0WXfPzwJzg=",
+    "last_login": "2024-05-20T01:47:29.903Z",
+    "is_superuser": false,
+    "username": "user6",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:29.579Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$T3Xwe7QWYAmNi5roTf0mQC$vfzuEBBw/RgouIJhtnerATK+XoSn5TXHU5e4AxfIjmk=",
+    "last_login": "2024-05-20T01:47:36.207Z",
+    "is_superuser": false,
+    "username": "user7",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:35.878Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$MWA3iT0NbwiIXhKbP9Ivr9$n2L+2Li1LT2JG17C4N4c7KBKMqiCBS+Fm56rJO/ZNYY=",
+    "last_login": "2024-05-20T01:47:49.879Z",
+    "is_superuser": false,
+    "username": "user8",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:49.566Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$3ZR7x7WVe4GsfYaOLcyilj$web3KeI4yMZ8rVmHzuglv+OHW6rMrldUHUrxKKTQ3MM=",
+    "last_login": "2024-05-20T01:47:56.260Z",
+    "is_superuser": false,
+    "username": "user9",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:47:55.933Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Zo9NKEsJ23OwNlEs2i5osP$L8jrufURCO9MHlZX2SbLnErDb8139FXgFGejNiOHtN8=",
+    "last_login": "2024-05-20T01:48:04.609Z",
+    "is_superuser": false,
+    "username": "user10",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2024-05-20T01:48:04.276Z",
+    "groups": [],
+    "user_permissions": [],
+    "followings": [],
+    "recent_watched_movie": [],
+    "like_movies": [],
+    "recommendation_movie": []
+  }
+}
+]

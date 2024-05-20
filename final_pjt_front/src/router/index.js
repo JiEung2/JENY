@@ -9,11 +9,6 @@ const router = createRouter({
       name: 'home',
       component: HomeView
     },
-    {
-      path: '/popular_movies',
-      name: 'popular',
-      component: HomeView
-    },
   ]
 })
 

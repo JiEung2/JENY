@@ -4,26 +4,46 @@ import axios from 'axios'
 
 export const useMovieStore = defineStore('movie', () => {
   const popularMovies = ref([])
-  const TMDB_TOKEN = import.meta.env.VITE_TMDB_TOKEN
+  const latedMovies = ref([])
+  const API_URL = import.meta.env.VITE_API_URL
+  const USER_TOKEN = import.meta.env.VITE_USER_TOKEN
   
   const getPopularMovieList = function() {
     if (popularMovies.value.length == 0){
       axios({
         method: 'get',
-        url: 'https://api.themoviedb.org/3/movie/popular?language=ko&page=1',
+        url: `${API_URL}/api/v1/movies/popular/`,
         headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${TMDB_TOKEN}`
+          Authorization: `Bearer ${USER_TOKEN}`
         }
       }).then((response) => {
-        // console.log(response.data);
-        popularMovies.value = response.data.results
+        console.log(response);
+        popularMovies.value = response.data
+        console.log(popularMovies.value);
       }).catch((error) => {
         console.log(error);
       });
     }
   }
   
-  return { popularMovies, getPopularMovieList }
+  const getLatedMovieList = function() {
+    if (latedMovies.value.length == 0){
+      axios({
+        method: 'get',
+        url: `${API_URL}/api/v1/movies/late_release/`,
+        headers: {
+          Authorization: `Bearer ${USER_TOKEN}`
+        }
+      }).then((response) => {
+        console.log(response);
+        latedMovies.value = response.data
+        console.log(latedMovies.value);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+  }
+
+  return { popularMovies, latedMovies, getPopularMovieList, getLatedMovieList, API_URL, USER_TOKEN }
 })
 
