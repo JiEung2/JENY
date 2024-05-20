@@ -29,14 +29,14 @@ onMounted(() => {
 
 const scrollLeft = () => {
   movieContainer.value.scrollBy({
-    left: -300,
+    left: -500,
     behavior: 'smooth',
   });
 };
 
 const scrollRight = () => {
   movieContainer.value.scrollBy({
-    left: 300,
+    left: 500,
     behavior: 'smooth',
   });
 };
