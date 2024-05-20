@@ -1,8 +1,8 @@
 <template>
   <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
+    <div class="carousel-inner mt-2">
       <div class="carousel-item" :class="{ active: index === 0 }" v-for="(movie, index) in movieStore.popularMovies" :key="index">
-        <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="d-block carousel-img" :alt="movie.title">
+        <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="d-block mx-auto carousel-img" :alt="movie.title">
       </div>
     </div>
     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
@@ -28,20 +28,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.carousel-inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 500px; /* Adjust the height as needed */
-  margin-right: 50%;
-}
 
-.carousel-item {
-  height: 100%; /* Match the height of the carousel-inner */
-}
-
-.carousel-img {
-  max-height: 100%;
-  max-width: 100%;
-}
 </style>
