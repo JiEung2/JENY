@@ -161,3 +161,26 @@
 - 역할분담
   - 남용 : Word Cloud 구현 (~5/20)
   - 지응 : Vue 기본 컴포넌트 설계 및 Django 기본 url 설계 (~5/20)
+
+
+### 5일차
+#### WordCloud 기능 구현
+- 목표
+    - 사람들이 작성한 댓글을 한 눈에 볼 수 있는 WordCloud 기능 구현
+
+- 더미데이터 생성
+    - 아직 댓글기능이 구현되지 않았기 때문에 더미 댓글 데이터 50개 생성
+    - 주소로 요청을 보내면 임의의 댓글 50개를 생성
+    - GPT를 통해 더미데이터 생성    
+        - path('getDummyComment/', views.getDummyComment)
+        - user_id와 movie_id를 임의로 지정해주고 (1, 5) 5번영화에 1번 유저가 남긴 댓글 50개 작성 (get_or_create) 사용
+- 불용어 선택
+    - '은', '는', '이', '가', '했다', '했었다', '좋았다' 와 같은 의미가 없는 불용어 제거
+    - 불용어가 제거된 키워드 개수를 세고 가중치를 구해서 글씨 크기와 색상에 변화를 줌
+- 사용 라이브러리
+    - vuewordcloud
+    - krwordrank
+
+- 참고 사이트
+    - https://sunshower99.tistory.com/12 (블로그)
+    - https://www.npmjs.com/package/vuewordcloud (공식문서)
