@@ -6,8 +6,8 @@
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
       <div class="movie-row" ref="movieRow">
-        <div class="movie-card-wrapper" v-for="src in youtubeSrcs" :key="src.id">
-          <MovieItemView :src="src" />
+        <div class="movie-card-wrapper" v-for="movie in movieStore.latedMovies" :key="movie.id">
+          <MovieItemView :movie="movie" />
         </div>
       </div>
     </div>
@@ -23,26 +23,9 @@ import { onMounted, ref } from 'vue';
 const movieStore = useMovieStore();
 const movieContainer = ref(null);
 
-const youtubeSrcs = ref([]);
 
 onMounted(() => {
   movieStore.getLatedMovieList();
-  for(let movie of movieStore.latedMovies){
-    const movieName = movie.value.title + " 공식 예고편"
-    axios({
-      method: 'get',
-      url: `https://www.googleapis.com/youtube/v3/search?part=snippet&chart=mostPopular&maxResults=1&q=${movieName}&type=video&key=${youtubeKey}`,
-    })
-    .then((response) => {
-      youtubeId.value = response.data.items[0].id.videoId
-      // console.log(response.data)
-      youtubeSrcs.value.push(`https://www.youtube.com/embed/${youtubeId.value}`)
-    })
-    .catch((error) => {
-      console.log(error)
-    });
-
-  }
 });
 
 const scrollLeft = () => {

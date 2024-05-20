@@ -1,43 +1,49 @@
 <template>
   <div class="movie-card-wrapper">
     <div class="card h-100 movie-card no-border">
-      <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img-top" :alt="movie.title">
-      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <img v-if="src.thumbnail" :src="src.thumbnail" class="card-img-top" :data-bs-target="`#modal-${src.id}`" data-bs-toggle="modal">
+      <div class="modal fade" :id="`modal-${src.id}`" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" style="max-width: 757px;">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">{{ movie.title }}공식 예고편</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="stopVideo"></button>
             </div>
             <div class="modal-body">
-              <iframe id="ytplayer" type="text/html" width="720" height="405" :src="youtubeSrc" frameborder="0" allowfullscreen></iframe>
+              <iframe ref="iframe" id="ytplayer" type="text/html" width="720" height="405" :src="src.src" frameborder="0" allowfullscreen></iframe>
             </div>
           </div>
         </div>
-      </div>
-      <div class="card-body" style="background-color: rgba(0, 0, 0, 1);">
-        <p class="card-title text-white"><b>{{ movie.title }}</b></p>
-        <p class="card-text text-white">{{ movie.release_data }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-defineProps({
-  movie: Object
-})
+import { onMounted, ref } from 'vue';
 
-const router = useRouter()
-// const goDetailPage = function(movieId){
-//   router.push(`/${movieId}`)
-// }
+const props = defineProps({
+  src: Object
+});
+
+const iframe = ref(null);
+
+const stopVideo = () => {
+  iframe.value.src = '';
+};
+
+const resetVideoSrc = () => {
+  iframe.value.src = props.src.src;
+};
+
+onMounted(() => {
+  const modal = document.getElementById(`modal-${props.src.id}`);
+  modal.addEventListener('hidden.bs.modal', resetVideoSrc);
+});
 </script>
 
 <style scoped>
 .movie-card {
-  width: 150px; /* 카드의 가로 너비를 150px로 설정 */
+  width: 200px; /* 카드의 가로 너비를 200px로 설정 */
 }
 
 .movie-card-wrapper {
@@ -47,7 +53,7 @@ const router = useRouter()
 
 .card-img-top {
   width: 100%; /* 이미지가 카드 너비에 맞도록 조정 */
-  height: 220px; /* 이미지 높이 자동 조정 */
+  height: 250px; /* 이미지 높이 자동 조정 */
 }
 
 .card-body {

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h4 class="header">최근 개봉작</h4>
+    <h4 class="header">예고편</h4>
   </div>
   <div class="carousel-container">
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
       <div class="movie-row" ref="movieRow">
-        <div class="movie-card-wrapper" v-for="movie in movieStore.latedMovies" :key="movie.id">
-          <MovieItemView :movie="movie" />
+        <div class="movie-card-wrapper" v-for="src in movieStore.youtubeSrcs" :key="src.src">
+          <PreviewItemView :src="src" />
         </div>
       </div>
     </div>
@@ -16,15 +16,17 @@
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
 import { useMovieStore } from '@/stores/counter';
 import { onMounted, ref } from 'vue';
+import PreviewItemView from './PreviewItemView.vue';
 
 const movieStore = useMovieStore();
 const movieContainer = ref(null);
 
+
+
 onMounted(() => {
-  movieStore.getLatedMovieList();
+  movieStore.getLatedMovieList()
 });
 
 const scrollLeft = () => {
@@ -45,10 +47,10 @@ const scrollRight = () => {
 <style scoped>
 .header {
   margin-top: 20px;
-  margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
-  color: white; /* 글씨가 흐리지 않도록 검은색 지정 */
-  font-family: "Noto Sans KR", sans-serif; /* 폰트 패밀리 설정 */
-  font-weight: 600; /* 폰트 굵기 설정 */
+  margin-left: 5rem;
+  color: white;
+  font-family: "Noto Sans KR", sans-serif;
+  font-weight: 600;
 }
 
 .carousel-container {
@@ -62,7 +64,7 @@ const scrollRight = () => {
   overflow-x: auto;
   white-space: nowrap;
   padding: 1rem;
-  margin: 0 50px; /* Add margin to make space for the buttons */
+  margin: 0 50px;
 }
 
 .movie-row {
@@ -76,10 +78,9 @@ const scrollRight = () => {
 
 .movie-card {
   width: 250px;
-  height: 375px; /* 영화 카드 높이 설정 */
+  height: 375px;
 }
 
-/* Scrollbar styling */
 .movie-container::-webkit-scrollbar {
   height: 10px;
 }
@@ -97,7 +98,6 @@ const scrollRight = () => {
   background: black;
 }
 
-/* Button styling */
 .scroll-button {
   position: absolute;
   top: 50%;
@@ -105,8 +105,8 @@ const scrollRight = () => {
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  width: 50px; /* 버튼 너비 */
-  height: 375px; /* 영화 카드 높이와 맞추기 */
+  width: 50px;
+  height: 250px;
   cursor: pointer;
   z-index: 10;
   font-size: 1.5rem;

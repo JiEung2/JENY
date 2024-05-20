@@ -1,6 +1,5 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HomeView from './views/HomeView.vue';
 </script>
 
 <template>
@@ -14,10 +13,10 @@ import HomeView from './views/HomeView.vue';
             <RouterLink to="/" class="link text-white"><img src="@/assets/bell.png" alt="bell" height="27"></RouterLink>
           </li>
           <li class="nav-item ms-3">
-            <RouterLink to="/" class="link text-white">로그인</RouterLink>
+            <RouterLink :to="{ name: 'LogInView' }" class="link text-white">로그인</RouterLink>
           </li>
           <li class="nav-item ms-3">
-            <RouterLink to="/" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
+            <RouterLink :to="{ name: 'SignUpView' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
           </li>
         </ul>
       </div>
