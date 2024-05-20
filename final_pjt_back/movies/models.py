@@ -12,6 +12,7 @@ class Movie(models.Model):
     release_data = models.DateField()
     poster_path = models.TextField()
     vote_average = models.FloatField()
+    popularity = models.FloatField()
     adult = models.BooleanField()
     runtime = models.IntegerField()
 

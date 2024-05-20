@@ -9,7 +9,7 @@ from .models import Comment
 def getMovieData(request):
 
   for i in range(1, 501):
-    url = f"https://api.themoviedb.org/3/movie/popular?language=en-US&page={i}"
+    url = f"https://api.themoviedb.org/3/movie/popular?language=ko&page={i}"
 
     headers = {
         "accept": "application/json",
@@ -32,6 +32,7 @@ def getMovieData(request):
           'release_data': movie['release_date'],
           'poster_path': movie['poster_path'],
           'vote_average': movie['vote_average'],
+          'popularity': movie['popularity'],
           'adult': movie['adult'],
           'runtime': movie.get('runtime', 0)  # runtime이 없을 경우 0으로 설정합니다.
         }
