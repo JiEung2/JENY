@@ -2,7 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SignUpView from '@/views/SignUpView.vue'
 import LogInView from '@/views/LogInView.vue'
+import SearchView from '@/views/SearchView.vue'
 import DetailView from '@/views/DetailView.vue'
+
 
 
 const router = createRouter({
@@ -29,8 +31,14 @@ const router = createRouter({
       component: DetailView,
       props: true,
     },
-
+    {
+      path: '/search',
+      name: 'SearchView',
+      component: SearchView
+    },
   ]
 })
+
+
 
 export default router

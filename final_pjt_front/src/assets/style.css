@@ -1,6 +1,7 @@
-.noto-sans-kr {
-  font-family: "Noto Sans KR", sans-serif;
+body {
+  background-color: black;
+  font-family: "Noto Sans KR", sans-serif !important;
   font-optical-sizing: auto;
-  font-weight: 700;
+  font-weight: 600;
   font-style: normal;
 }

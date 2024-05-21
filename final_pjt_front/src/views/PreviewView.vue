@@ -23,12 +23,6 @@ import PreviewItemView from './PreviewItemView.vue';
 const movieStore = useMovieStore();
 const movieContainer = ref(null);
 
-
-
-onMounted(() => {
-  movieStore.getLatedMovieList()
-});
-
 const scrollLeft = () => {
   movieContainer.value.scrollBy({
     left: -500,

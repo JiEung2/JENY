@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useMovieStore } from '@/stores/counter'
+import { useAccountStore } from '@/stores/account'
 
 const signupUsername = ref(null)
 const signupPassword1 = ref(null)
@@ -69,7 +69,7 @@ const signupPassword2 = ref(null)
 const loginUsername = ref(null)
 const loginPassword = ref(null)
 
-const store = useMovieStore()
+const store = useAccountStore()
 
 const signUp = function () {
   const payload = {
