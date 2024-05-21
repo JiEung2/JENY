@@ -27,17 +27,16 @@ onMounted(() => {
               <RouterLink :to="{ name: 'SearchView' }" class="link text-white">검색</RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin === false">
-              <RouterLink :to="{ name: 'LogInView' }" class="link text-white" >로그인</RouterLink>
+              <RouterLink :to="{ name: 'login' }" class="link text-white" >로그인</RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin === false">
-              <RouterLink :to="{ name: 'SignUpView' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
+              <RouterLink :to="{ name: 'signup' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
             </li>
             <li class="nav-item ms-3">
-              <RouterLink :to="{ name: 'LogInView' }" class="link text-white" v-if="accountStore.isLogin === true">마이페이지</RouterLink>
+              <RouterLink :to="{ name: 'home' }" class="link text-white" v-if="accountStore.isLogin === true">마이페이지</RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin === true">
-              <RouterLink :to="{ name: 'LogInView' }" class="link text-white" >로그아웃</RouterLink>
-
+              <RouterLink :to="{ name: 'home' }" class="link text-white" >로그아웃</RouterLink>
             </li>
           </ul>
         </div>
