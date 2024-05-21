@@ -28,5 +28,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
+.carousel-img {
+  max-width: 80%; /* 이미지의 최대 너비를 설정하여 크기 조정 */
+  height: 500px; /* 이미지 비율을 유지하면서 높이를 자동으로 설정 */
+}
 </style>

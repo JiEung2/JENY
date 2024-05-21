@@ -1,49 +1,16 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useAccountStore } from './account';
 
 export const useMovieStore = defineStore('movie', () => {
   const popularMovies = ref([]);
   const latedMovies = ref([]);
   const API_URL = import.meta.env.VITE_API_URL;
-  const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN); // USER_TOKEN을 ref로 변경
   const youtubeKey = import.meta.env.VITE_YOUTUBE_API_KEY;
   const youtubeSrcs = ref([]);
-  const youtubeCache = new Map(); // 캐시 추가
 
-  const signUp = function (payload) {
-    const { username, password1, password2 } = payload;
-
-    axios({
-      method: 'post',
-      url: `${API_URL}/accounts/signup/`,
-      data: {
-        username, password1, password2
-      }
-    })
-      .then(res => {
-        console.log('회원가입 완료!');
-      })
-      .catch(err => console.log(err));
-  };
-
-  const logIn = function (payload) {
-    const { username, password } = payload;
-
-    axios({
-      method: 'post',
-      url: `${API_URL}/accounts/login/`,
-      data: {
-        username, password
-      }
-    })
-      .then(res => {
-        console.log('로그인이 완료!');
-        console.log(res.data);
-        // USER_TOKEN.value = res.data.token;
-      })
-      .catch(err => console.log(err));
-  };
+  const accountStore = useAccountStore();
 
   const getPopularMovieList = function () {
     if (popularMovies.value.length === 0) {
@@ -51,7 +18,7 @@ export const useMovieStore = defineStore('movie', () => {
         method: 'get',
         url: `${API_URL}/api/v1/movies/popular/`,
         headers: {
-          Authorization: `Bearer ${USER_TOKEN.value}`
+          Authorization: `Bearer ${accountStore.token}`
         }
       })
         .then(response => {
@@ -67,11 +34,12 @@ export const useMovieStore = defineStore('movie', () => {
 
   const getLatedMovieList = function () {
     if (latedMovies.value.length === 0) {
+      console.log(1)
       axios({
         method: 'get',
         url: `${API_URL}/api/v1/movies/late_release/`,
         headers: {
-          Authorization: `Bearer ${USER_TOKEN.value}`
+          Authorization: `Bearer ${accountStore.token}`
         }
       })
         .then(response => {
@@ -79,11 +47,46 @@ export const useMovieStore = defineStore('movie', () => {
           latedMovies.value = response.data;
           console.log(latedMovies.value);
         })
+        .then(() => {
+          console.log(2)
+          latedMovies.value.forEach((movie, index) => {
+            const movieName = `${movie.title} 공식 예고편`;
+            axios({
+              method: 'get',
+              url: 'https://www.googleapis.com/youtube/v3/search',
+              params: {
+                part: 'snippet',
+                maxResults: 1,
+                q: movieName,
+                type: 'video',
+                key: youtubeKey
+              }
+            })
+            .then((response) => {
+              if (response.data.items.length > 0) {
+                const youtubeId = response.data.items[0].id.videoId;
+                const youtubeData = {
+                  src: `https://www.youtube.com/embed/${youtubeId}`,
+                  thumbnail: `https://img.youtube.com/vi/${youtubeId}/0.jpg`,
+                  title: movie.title,
+                  release_date: movie.release_date,
+                  id: index
+                };
+                youtubeSrcs.value.push(youtubeData);
+              } else {
+                console.log(`No YouTube video found for ${movie.title}`);
+              }
+            })
+            .catch((error) => {
+              console.error(`Failed to fetch YouTube video for ${movie.title}:`, error);
+            });
+          });
+        })
         .catch(error => {
           console.log(error);
         });
     }
   };
 
-  return { popularMovies, latedMovies, getPopularMovieList, getLatedMovieList, signUp, logIn, API_URL, USER_TOKEN, youtubeKey, youtubeSrcs };
+  return { popularMovies, latedMovies, getPopularMovieList, getLatedMovieList, API_URL, youtubeKey, youtubeSrcs };
 }, { persist: true });
