@@ -16,5 +16,10 @@ export const useAccountStore = defineStore('account', () => {
     }
   })
 
-  return { API_URL, token, isLogin };
+  const logout = ()=> {
+    token.value = null
+    localStorage.removeItem('token');
+  }
+
+  return { API_URL, token, isLogin, logout };
 }, { persist: true });

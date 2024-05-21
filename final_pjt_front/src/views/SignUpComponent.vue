@@ -2,6 +2,7 @@
   <div class="center-wrap">
     <div class="section text-center">
       <h4 class="mb-4 pb-3">Sign Up</h4>
+      <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
       <form @submit.prevent="signUp">
         <div class="form-group">
           <input type="text" class="form-style" placeholder="Your Username" id="signup-username" v-model.trim="signupUsername" autocomplete="off">
@@ -25,45 +26,58 @@
 import { ref } from 'vue'
 import { useAccountStore } from '@/stores/account'
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
+
+const router = useRouter()
 const signupUsername = ref(null)
 const signupPassword1 = ref(null)
 const signupPassword2 = ref(null)
+const errorMessage = ref('')
 const store = useAccountStore()
 
 const API_URL = store.API_URL
 
 const signUp = function () {
-  const username= signupUsername.value
-  const password1= signupPassword1.value
-  const password2= signupPassword2.value
+  const username = signupUsername.value
+  const password1 = signupPassword1.value
+  const password2 = signupPassword2.value
 
-  axios({
-    method: 'post',
-    url: `${API_URL}/accounts/signup/`,
-    data: {
-      username, password1, password2
-    }
-  })
+  axios.post(`${API_URL}/accounts/signup/`, { username, password1, password2 })
     .then(res => {
       console.log('회원가입 완료!');
       const password = password1
-      logIn({username, password})
+      logIn({ username, password })
     })
-    .catch(err => console.log(err));
-  };
+    .catch(error => {
+      if (error.response && error.response.data) {
+        if (error.response.data.username) {
+          errorMessage.value = error.response.data.username[0];
+        } else if (error.response.data.password1) {
+          errorMessage.value = error.response.data.password1[0];
+        } else if (error.response.data.non_field_errors) {
+          errorMessage.value = error.response.data.non_field_errors[0];
+        } else {
+          errorMessage.value = '회원가입 중 오류가 발생했습니다.';
+        }
+      } else {
+        errorMessage.value = '서버와 연결할 수 없습니다.';
+      }
+      console.log(error);
+    });
+};
 
 const logIn = function (payload) {
-  const { loginUsername, loginPassword } = payload
+  const { username, password } = payload
   axios({
     method: 'post',
     url: `${API_URL}/accounts/login/`,
     data: {
-      loginUsername, loginPassword
+      username, password
     }
   })
     .then(res => {
-      token.value = res.data.key;
+      store.token = res.data.key;
       router.push({name : 'home'})
     })
     .catch(err => {

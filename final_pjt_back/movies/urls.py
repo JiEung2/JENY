@@ -17,4 +17,9 @@ urlpatterns = [
   path('movies/<int:movie_id>/<int:comment_id>/', views.comment_detail),
   path('movies/<int:movie_id>/comments/create/', views.comment_create),
   path('movies/<int:movie_id>/review/wordcloud/', views.rewiew_wordcloud),
+  path('movies/<int:movie_id>/likes/', views.likes_movie, name='likes'),
+  path('movies/like_movies/', views.my_like_movies, name='my_like_movies'),
+  path('movies/both_like/<str:username>/', views.search_both_like, name='search_both_like'),
+  path('throw/<int:movie_id>/<str:username>/', views.throw_movie, name='throw_movie'),
+  path('thrown_movies/', views.thrown_movies, name='thrown_movies'),
 ]

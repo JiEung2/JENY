@@ -14,10 +14,12 @@ import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 import { defineProps } from 'vue';
 import { onMounted, ref } from 'vue';
-import { useMovieStore } from '@/stores/counter';
+import { useAccountStore } from '@/stores/account';
+
+const accountStore = useAccountStore()
 
 const API_URL = import.meta.env.VITE_API_URL
-const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
+const USER_TOKEN = accountStore.token
 
 const route = useRoute()
 const movieDetail = ref([])
@@ -35,7 +37,7 @@ axios({
     method: 'get',
     url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
     headers: {
-      Authorization: `Bearer ${USER_TOKEN.value}`
+      Authorization: `Token ${USER_TOKEN}`
     }
   })
     .then(response => {

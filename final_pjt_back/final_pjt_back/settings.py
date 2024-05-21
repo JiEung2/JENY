@@ -68,6 +68,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+
 }
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
