@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.conf import settings
 from django.utils import timezone
-from .serializers import MovieSerializer, CommentSerializer
+from .serializers import MovieSerializer, CommentSerializer, GenreSerializer
 from .models import Movie
 from .models import Genre
 from .models import Comment
@@ -125,13 +125,13 @@ def getGenreData(request):
     return render(request, 'getData.html')
 
 @api_view(['GET'])
-def popular(request):
+def popular(request): # 인기 영화 조회
   popular_movies = Movie.objects.order_by('-popularity')[:10]
   serializer = MovieSerializer(popular_movies, many=True)
   return Response(serializer.data)
 
 @api_view(['GET'])
-def late_release(request):
+def late_release(request): # 최근 개봉한 영화 조회
   today = timezone.now().date()
   late_movies = Movie.objects.filter(release_data__lte=today).exclude(overview="").order_by('-release_data')[:10]
   serializer = MovieSerializer(late_movies, many=True)
@@ -141,6 +141,17 @@ def late_release(request):
 def getMovieDetail(request, movie_id):
   movie = Movie.objects.filter(id=movie_id)
   serializer = MovieSerializer(movie, many=True)
+
+@api_view(['GET'])
+def search_movie(request, movie_name): # 영화 제목으로 영화 조회
+  find_movies = Movie.objects.filter(title__icontains=movie_name)
+  serializer = MovieSerializer(find_movies, many=True)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+def search_genre(request, genre_id):
+  genre = Genre.objects.get(id = genre_id)
+  serializer = GenreSerializer(genre)
   return Response(serializer.data)
 
 @api_view(['GET'])
