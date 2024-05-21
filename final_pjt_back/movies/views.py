@@ -138,6 +138,12 @@ def late_release(request):
   return Response(serializer.data)
 
 @api_view(['GET'])
+def getMovieDetail(request, movie_id):
+  movie = Movie.objects.filter(id=movie_id)
+  serializer = MovieSerializer(movie, many=True)
+  return Response(serializer.data)
+
+@api_view(['GET'])
 def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
   if request.method == 'GET': 
     comments = Comment.objects.filter(movie_id=movie_id)

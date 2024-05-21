@@ -85,5 +85,23 @@ export const useMovieStore = defineStore('movie', () => {
     }
   };
 
-  return { popularMovies, latedMovies, getPopularMovieList, getLatedMovieList, signUp, logIn, API_URL, USER_TOKEN, youtubeKey, youtubeSrcs };
+  const getMovieDetail = function (id) {
+    if (movieDetail.value.length === 0) {
+      axios({
+        method: 'get',
+        url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
+        headers: {
+          Authorization: `Bearer ${USER_TOKEN.value}`
+        }
+      })
+        .then(response => {
+          movieDetail.value = response.data
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+  }
+
+  return { popularMovies, latedMovies, getPopularMovieList, getLatedMovieList, getMovieDetail, signUp, logIn, API_URL, USER_TOKEN, youtubeKey, youtubeSrcs };
 }, { persist: true });
