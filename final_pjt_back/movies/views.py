@@ -1,10 +1,11 @@
-from django.shortcuts import render
 import requests
-from django.conf import settings
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import MovieSerializer
+from django.shortcuts import render
+from django.conf import settings
 from django.utils import timezone
+from .serializers import MovieSerializer, CommentSerializer
 from .models import Movie
 from .models import Genre
 from .models import Comment
@@ -136,3 +137,35 @@ def late_release(request):
   serializer = MovieSerializer(late_movies, many=True)
   return Response(serializer.data)
 
+@api_view(['GET'])
+def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
+  if request.method == 'GET': 
+    comments = Comment.objects.filter(movie_id=movie_id)
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+  
+@api_view(['POST'])
+def comment_create(request, movie_id): # 해당 movie_id에 댓글 작성
+  if request.method == 'POST': 
+    movie = Movie.objects.get(pk=movie_id)
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save(movie=movie, user=request.user)
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET', 'DELETE', 'PUT']) 
+def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭제, 수정
+  comment = Comment.objects.get(pk=comment_id)
+  if request.method == 'GET':
+    serializer = CommentSerializer(comment)
+    return Response(serializer.data)
+  
+  elif request.method == 'DELETE':
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+  
+  elif request.method == 'PUT':
+    serializer = CommentSerializer(comment, data=request.data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(serializer.data)
