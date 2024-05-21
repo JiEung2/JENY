@@ -141,6 +141,7 @@ def late_release(request): # 최근 개봉한 영화 조회
 def getMovieDetail(request, movie_id):
   movie = Movie.objects.filter(id=movie_id)
   serializer = MovieSerializer(movie, many=True)
+  return Response(serializer.data)
 
 @api_view(['GET'])
 def search_movie(request, movie_name): # 영화 제목으로 영화 조회
@@ -186,3 +187,15 @@ def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭�
     if serializer.is_valid(raise_exception=True):
       serializer.save()
       return Response(serializer.data)
+    
+@api_view(['GET'])
+def rewiew_wordcloud(request, movie_id):
+    print(12313)
+    movie = Movie.objects.get(id=movie_id)
+    reviews = movie.movie_comment.all()
+    
+    texts = []
+    for review in reviews:
+      texts.append(review.content)
+    
+    print(texts)
