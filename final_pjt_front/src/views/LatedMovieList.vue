@@ -6,7 +6,11 @@
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
       <div class="movie-row" ref="movieRow">
-        <div class="movie-card-wrapper" v-for="movie in movieStore.latedMovies" :key="movie.id">
+        <div 
+          @click="goToDetailPage(movie)" 
+          class="movie-card-wrapper" 
+          v-for="movie in movieStore.latedMovies" 
+          :key="movie.id">
           <MovieItemView :movie="movie" />
         </div>
       </div>
@@ -19,9 +23,13 @@
 import MovieItemView from '@/views/MovieItemView.vue';
 import { useMovieStore } from '@/stores/counter';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 
 const movieStore = useMovieStore();
 const movieContainer = ref(null);
+const router = useRouter()
+
 
 const scrollLeft = () => {
   movieContainer.value.scrollBy({
@@ -36,6 +44,15 @@ const scrollRight = () => {
     behavior: 'smooth',
   });
 };
+
+const goToDetailPage = (movie) => {
+  router.push({ 
+    name: 'DetailView', 
+    params: {
+      id: movie.id,
+    },
+  })
+}
 </script>
 
 <style scoped>
@@ -118,5 +135,16 @@ const scrollRight = () => {
 
 .scroll-button:hover {
   background-color: rgba(0, 0, 0, 0.7);
+}
+
+.movie-card-wrapper {
+  flex: 0 0 auto;
+  margin-right: 1rem;
+  transition: transform 0.3s ease;
+  cursor: pointer; /* 마우스를 클릭 가능한 포인터 모양으로 설정 */
+}
+
+.movie-card-wrapper:hover {
+  transform: scale(1.05); /* 마우스 호버 시 크기 1.1배로 확대 */
 }
 </style>

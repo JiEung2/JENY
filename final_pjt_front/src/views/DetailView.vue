@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <DetailPreview />
     <br>
     <br>
@@ -16,11 +16,10 @@ import { defineProps } from 'vue';
 import { onMounted, ref } from 'vue';
 import { useMovieStore } from '@/stores/counter';
 
-const API_URL = import.meta.env.VITE_API_URL;
-const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN); // USER_TOKEN을 ref로 변경
+const API_URL = import.meta.env.VITE_API_URL
+const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
 
 const route = useRoute()
-const movieStore = useMovieStore()
 const movieDetail = ref([])
 const movieComment = ref([])
 
@@ -63,7 +62,50 @@ axios({
 
 </script>
 
-
 <style scoped>
+.container {
+  text-align: center;
+  color: white;
+  background-color: #121212;
+  padding: 20px;
+}
 
+.container .movie-poster {
+  display: block;
+  margin: 0 auto;
+}
+
+.container h1, .container h2, .container p {
+  color: white;
+}
+
+.container h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.container h2 {
+  font-size: 2em;
+  margin-bottom: 15px;
+}
+
+.container p {
+  font-size: 1.2em;
+  line-height: 1.6;
+}
+
+.container .movie-info {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.container .movie-comments {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 </style>

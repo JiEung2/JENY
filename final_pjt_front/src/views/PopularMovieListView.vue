@@ -138,4 +138,16 @@ const goToDetailPage = (movie) => {
 .scroll-button:hover {
   background-color: rgba(0, 0, 0, 0.7);
 }
+
+.movie-card-wrapper {
+  flex: 0 0 auto;
+  margin-right: 1rem;
+  transition: transform 0.3s ease;
+  cursor: pointer; /* 마우스를 클릭 가능한 포인터 모양으로 설정 */
+}
+
+.movie-card-wrapper:hover {
+  transform: scale(1.05); /* 마우스 호버 시 크기 1.1배로 확대 */
+}
+
 </style>

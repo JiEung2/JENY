@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>DetailPreview</h1>
+    <h1>예고편 미리보기</h1>
   </div>
 </template>
 
