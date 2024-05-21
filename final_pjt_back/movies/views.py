@@ -138,6 +138,11 @@ def late_release(request): # 최근 개봉한 영화 조회
   return Response(serializer.data)
 
 @api_view(['GET'])
+def getMovieDetail(request, movie_id):
+  movie = Movie.objects.filter(id=movie_id)
+  serializer = MovieSerializer(movie, many=True)
+
+@api_view(['GET'])
 def search_movie(request, movie_name): # 영화 제목으로 영화 조회
   find_movies = Movie.objects.filter(title__icontains=movie_name)
   serializer = MovieSerializer(find_movies, many=True)
