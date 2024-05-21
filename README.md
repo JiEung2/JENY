@@ -190,3 +190,24 @@ https://fringe-comma-59e.notion.site/ERD-20b77c08524246998a3aa0c1b89786ac?pvs=4
 - 참고 사이트
     - https://sunshower99.tistory.com/12 (블로그)
     - https://www.npmjs.com/package/vuewordcloud (공식문서)
+
+#### 영화 댓글 CRUD 기능 구현
+- movie_id에 대해서 모든 댓글 조회, 단일 댓글 조회, 댓글 수정, 댓글 삭제 기능 구현
+    - movie_id에 대한 모든 댓글 조회
+        - url 주소 : `movies/<int:movie_id>/comments/`
+        - view 함수 : `comment_list`
+
+    - movie_id에 대한 댓글 생성
+        - url 주소 : `movies/<int:movie_id>/comments/<int:comment_id>/`
+        - view 함수 : comment_create
+
+    - movid_id에 대한 단일 댓글 조회/수정/삭제
+        - url 주소 : `movies/<int:movie_id>/comments/<int:comment_id>/`
+        - view 함수 : `comment_detail`
+        - GET 요청 시 단일 댓글 조회
+        - DELETE 요청 시 단일 댓글 삭제
+        - PUT 요청 시 단일 댓글 수정
+
+
+### 6일차
+#### Detail 페이지 구현
