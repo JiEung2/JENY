@@ -1,59 +1,22 @@
 <template>
-  <div class="section">
-    <div class="container">
-      <div class="row full-height justify-content-center">
-        <div class="col-12 text-center align-self-center py-5">
-          <div class="section pb-5 pt-5 pt-sm-2 text-center">
-            <h6 class="mb-0 pb-3"><span>Log In </span><span>Sign Up</span></h6>
-            <input class="checkbox" type="checkbox" id="reg-log" name="reg-log" checked/>
-            <label for="reg-log"></label>
-            <div class="card-3d-wrap mx-auto">
-              <div class="card-3d-wrapper">
-                <div class="card-front">
-                  <div class="center-wrap">
-                    <div class="section text-center">
-                      <h4 class="mb-4 pb-3">Log In</h4>
-                      <form @submit.prevent="logIn">
-                        <div class="form-group">
-                          <input type="text" class="form-style" placeholder="Your Id" id="login-username" v-model.trim="loginUsername" autocomplete="off">
-                          <i class="input-icon uil uil-user"></i>
-                        </div>  
-                        <div class="form-group mt-2">
-                          <input type="password" class="form-style" placeholder="Your Password" id="login-password" v-model.trim="loginPassword" autocomplete="off">
-                          <i class="input-icon uil uil-lock-alt"></i>
-                        </div>  
-                        <input type="submit" class="btn mt-4" value="Login">
-                      </form>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-back">
-                  <div class="center-wrap">
-                    <div class="section text-center">
-                      <h4 class="mb-4 pb-3">Sign Up</h4>
-                      <form @submit.prevent="signUp">
-                        <div class="form-group">
-                          <input type="text" class="form-style" placeholder="Your Username" id="signup-username" v-model.trim="signupUsername" autocomplete="off">
-                          <i class="input-icon uil uil-user"></i>
-                        </div>  
-                        <div class="form-group mt-2">
-                          <input type="password" class="form-style" placeholder="Your Password" id="signup-password1" v-model.trim="signupPassword1" autocomplete="off">
-                          <i class="input-icon uil uil-lock-alt"></i>
-                        </div>  
-                        <div class="form-group mt-2">
-                          <input type="password" class="form-style" placeholder="Confirm Password" id="signup-password2" v-model.trim="signupPassword2" autocomplete="off">
-                          <i class="input-icon uil uil-lock-alt"></i>
-                        </div>
-                        <input type="submit" class="btn mt-4" value="SignUp">
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div class="center-wrap">
+    <div class="section text-center">
+      <h4 class="mb-4 pb-3">Sign Up</h4>
+      <form @submit.prevent="signUp">
+        <div class="form-group">
+          <input type="text" class="form-style" placeholder="Your Username" id="signup-username" v-model.trim="signupUsername" autocomplete="off">
+          <i class="input-icon uil uil-user"></i>
+        </div>  
+        <div class="form-group mt-2">
+          <input type="password" class="form-style" placeholder="Your Password" id="signup-password1" v-model.trim="signupPassword1" autocomplete="off">
+          <i class="input-icon uil uil-lock-alt"></i>
+        </div>  
+        <div class="form-group mt-2">
+          <input type="password" class="form-style" placeholder="Confirm Password" id="signup-password2" v-model.trim="signupPassword2" autocomplete="off">
+          <i class="input-icon uil uil-lock-alt"></i>
         </div>
-      </div>
+        <input type="submit" class="btn mt-4" value="SignUp">
+      </form>
     </div>
   </div>
 </template>
@@ -61,32 +24,52 @@
 <script setup>
 import { ref } from 'vue'
 import { useAccountStore } from '@/stores/account'
+import axios from 'axios';
 
 const signupUsername = ref(null)
 const signupPassword1 = ref(null)
 const signupPassword2 = ref(null)
-
-const loginUsername = ref(null)
-const loginPassword = ref(null)
-
 const store = useAccountStore()
 
-const signUp = function () {
-  const payload = {
-    username: signupUsername.value,
-    password1: signupPassword1.value,
-    password2: signupPassword2.value,
-  }
-  store.signUp(payload)
-}
+const API_URL = store.API_URL
 
-const logIn = function () {
-  const payload = {
-    username: loginUsername.value,
-    password: loginPassword.value
-  }
-  store.logIn(payload)
-}
+const signUp = function () {
+  const username= signupUsername.value
+  const password1= signupPassword1.value
+  const password2= signupPassword2.value
+
+  axios({
+    method: 'post',
+    url: `${API_URL}/accounts/signup/`,
+    data: {
+      username, password1, password2
+    }
+  })
+    .then(res => {
+      console.log('회원가입 완료!');
+      const password = password1
+      logIn({username, password})
+    })
+    .catch(err => console.log(err));
+  };
+
+const logIn = function (payload) {
+  const { loginUsername, loginPassword } = payload
+  axios({
+    method: 'post',
+    url: `${API_URL}/accounts/login/`,
+    data: {
+      loginUsername, loginPassword
+    }
+  })
+    .then(res => {
+      token.value = res.data.key;
+      router.push({name : 'home'})
+    })
+    .catch(err => {
+      console.log(err)
+    });
+};
 </script>
 
 <style scoped>

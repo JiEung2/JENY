@@ -7,11 +7,11 @@
       <div class="col-md-10">
         <div class="card-body d-flex flex-column justify-content-between">
           <div>
-            <h5 class="card-title noto-sans-kr">{{ movie.title }}</h5>
-            <p class="card-text noto-sans-kr"><small class="text-muted">{{ movie.release_data }}</small></p>
-            <p class="card-text noto-sans-kr"><small class="text-muted"><img class="star-icon" src="@/assets/star-icon.png" alt="">{{ movie.vote_average }}</small></p>
+            <h5 class="card-title">{{ movie.title }}</h5>
+            <p class="card-text"><small class="text-muted">{{ movie.release_data }}</small></p>
+            <p class="card-text"><small class="text-muted"><img class="star-icon" src="@/assets/star-icon.png" alt="">{{ movie.vote_average }}</small></p>
           </div>
-          <p class="card-text overview noto-sans-kr"><small class="text-muted">{{ movie.overview }}</small></p>
+          <p class="card-text overview"><small class="text-muted">{{ movie.overview }}</small></p>
         </div>
       </div>
     </div>
