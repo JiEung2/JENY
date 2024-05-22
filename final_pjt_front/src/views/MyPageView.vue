@@ -221,4 +221,3 @@ onMounted(() => {
   color: #e50914 !important; /* 넷플릭스 스타일의 빨간색 오류 메시지 */
 }
 </style>
->>>>>>> final_pjt_front/src/views/MyPageView.vue
