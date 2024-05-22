@@ -7,6 +7,7 @@ import DetailView from '@/views/DetailView.vue'
 import AccountView from '@/views/AccountView.vue'
 import LogInComponent from '@/views/LogInComponent.vue'
 import SignUpComponent from '@/views/SignUpComponent.vue'
+import MyPageView from '@/views/MyPageView.vue'
 
 
 
@@ -23,11 +24,11 @@ const router = createRouter({
       path: '/account',
       component: AccountView,
       children: [
-        {path: '', name: 'AccountView'},
-        {path: 'login', name: 'login', component: LogInComponent},
-        {path: 'signup', name: 'signup', component: SignUpComponent}
+        { path: '', name: 'AccountView' },
+        { path: 'login', name: 'login', component: LogInComponent },
+        { path: 'signup', name: 'signup', component: SignUpComponent }
       ]
-    },   
+    },
     {
       path: '/detail/:id',
       name: 'DetailView',
@@ -39,6 +40,11 @@ const router = createRouter({
       name: 'SearchView',
       component: SearchView
     },
+    {
+      path: '/mypage/',
+      name: 'MyPage',
+      component: MyPageView
+    }
   ]
 })
 
