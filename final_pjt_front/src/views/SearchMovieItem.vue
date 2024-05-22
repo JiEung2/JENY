@@ -5,7 +5,7 @@
         <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="img-fluid rounded-start movie-poster" :alt="movie.title">
       </div>
       <div class="col-md-10">
-        <div class="card-body d-flex flex-column justify-content-between">
+        <div @click="goToDetailPage(movie)" class="card-body d-flex flex-column justify-content-between">
           <div>
             <h5 class="card-title">{{ movie.title }}</h5>
             <p class="card-text"><small class="text-muted">{{ movie.release_data }}</small></p>
@@ -20,10 +20,20 @@
 
 <script setup>
 import { defineProps } from 'vue'
+import router from '@/router';
 
 const props = defineProps({
   movie: Object
 })
+
+const goToDetailPage = (movie) => {
+  router.push({ 
+    name: 'DetailView', 
+    params: {
+      id: movie.id,
+    },
+  })
+}
 </script>
 
 <style scoped>

@@ -24,11 +24,11 @@ const router = createRouter({
       path: '/account',
       component: AccountView,
       children: [
-        {path: '', name: 'AccountView'},
-        {path: 'login', name: 'login', component: LogInComponent},
-        {path: 'signup', name: 'signup', component: SignUpComponent}
+        { path: '', name: 'AccountView' },
+        { path: 'login', name: 'login', component: LogInComponent },
+        { path: 'signup', name: 'signup', component: SignUpComponent }
       ]
-    },   
+    },
     {
       path: '/detail/:id',
       name: 'DetailView',

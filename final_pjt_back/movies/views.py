@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.conf import settings
 from django.utils import timezone
+from krwordrank.word import summarize_with_keywords
 from django.contrib.auth import get_user_model
 from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
 from .models import Movie, Genre, Comment, Thrown_Movie
@@ -152,12 +153,12 @@ def search_movie(request, movie_name): # 영화 제목으로 영화 조회
   serializer = MovieSerializer(find_movies, many=True)
   return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def search_genre(request, genre_id):  # 장르 조회
-  genre = Genre.objects.get(id = genre_id)
-  serializer = GenreSerializer(genre)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def search_genre(request, genre_id):  # 장르 조회
+#   genre = Genre.objects.get(id = genre_id)
+#   serializer = GenreSerializer(genre)
+#   return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -233,7 +234,6 @@ def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭�
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def rewiew_wordcloud(request, movie_id):
-    # print(12313)
     movie = Movie.objects.get(id=movie_id)
     reviews = movie.movie_comment.all()
     
@@ -241,7 +241,40 @@ def rewiew_wordcloud(request, movie_id):
     for review in reviews:
       texts.append(review.content)
     
-    print(texts)
+    stopwords = {
+          "정말", "너무", "좀", "기대했던", "특히", "정말로", "매우", "아주", "너무", "별로", "많이", 
+          "다시", "더", "더러", "이", "있", "하", "것", "들", "그", "되", "수", "보", "않", "없", "나", "사람", "주", "아니", "등", 
+          "같", "우리", "때", "년", "가", "한", "지", "대하", "오", "말", "일", "그렇", "위하", "때문", "그것", "두", "말하", "알", 
+          "그러나", "받", "못하", "그런", "또", "문제", "사회", "많", "그리고", "좋", "크", "따르", "중", "나오", "가지", "씨", "시간", 
+          "만들", "지금", "생각하", "그러", "속", "하나", "집", "살", "모르", "적", "월", "데", "자신", "안", "어떤", "내", "내", 
+          "경우", "명", "생각", "시작", "우리", "다시", "이런", "그녀", "이러", "앞", "보이", "번", "나", "다른", "어떻", "전", "말", 
+          "로", "이렇", "약", "분", "영화", "하게", "있어요.", "되는", "콩과",
+      }
+    keywords = summarize_with_keywords(texts, min_count=2, max_length=10, 
+        beta=0.85, max_iter=10, stopwords=stopwords, verbose=True)
+    wordlist = []
+
+    for key, val in keywords.items():
+      temp = [key, int(val*100)]
+      wordlist.append(temp)
+  
+    return Response(wordlist)
+    
+@api_view(['GET'])
+def getMovieGenres(request, movie_id):
+    movie = Movie.objects.get(id=movie_id)
+    serializer = MovieSerializer(movie)
+
+    genre_ids = serializer.data["genre"]
+    genre_names = Genre.objects.filter(id__in=genre_ids).values_list('name', flat=True)
+
+    return Response(genre_names)
+
+@api_view(['GET'])
+def getUserId(request):
+    user_id = request.user.id
+    return Response(user_id)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -312,3 +345,4 @@ def get_liked_genres(request):
     for genre, count in most_common_genres:
       data.append([genre, count])
     return Response(data)
+

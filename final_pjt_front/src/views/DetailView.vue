@@ -5,33 +5,34 @@
     <br>
     <DetailInfo :id="id" :movieDetail="movieDetail" :movieComment="movieComment"/>
   </div>
+
 </template>
+
 
 <script setup>
 import DetailPreview from '@/components/DetailPreview.vue'
 import DetailInfo from '@/components/DetailInfo.vue'
 import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
-import { defineProps } from 'vue';
-import { onMounted, ref } from 'vue';
-import { useAccountStore } from '@/stores/account';
 
-const accountStore = useAccountStore()
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { defineProps } from 'vue';
+import { useAccountStore } from '@/stores/account';
 
 const API_URL = import.meta.env.VITE_API_URL
 const USER_TOKEN = accountStore.token
 
+const accountStore = useAccountStore()
 const route = useRoute()
 const movieDetail = ref([])
 const movieComment = ref([])
+const id = route.params.id
 
 const props = defineProps({
   id: {
     type: String,
   },
 })
-
-const id = route.params.id
 
 axios({
     method: 'get',
@@ -48,7 +49,7 @@ axios({
         method: 'get',
         url: `${API_URL}/api/v1/movies/${id}/comments/`,
         headers: {
-          Authorization: `Bearer ${USER_TOKEN.value}`
+          Authorization: `Bearer ${accountStore.token}`
         }
       })
         .then(response => {
@@ -75,6 +76,7 @@ const like = function (){
     })
 }
 </script>
+
 
 <style scoped>
 .container {
