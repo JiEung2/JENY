@@ -38,7 +38,7 @@ axios({
     method: 'get',
     url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
     headers: {
-      Authorization: `Token ${USER_TOKEN}`
+      Authorization: `Token ${accountStore.token}`
     }
   })
     .then(response => {
@@ -62,7 +62,6 @@ axios({
     .catch(error => {
       console.log(error)
     })
-
 
 </script>
 

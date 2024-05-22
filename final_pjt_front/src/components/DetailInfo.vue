@@ -132,6 +132,7 @@ axios({
   headers: {
     Authorization: `Token ${accountStore.token}`
   }
+>>>>>>> final_pjt_front/src/components/DetailInfo.vue
 })
   .then(response => {
     genres.value = response.data;
