@@ -62,6 +62,18 @@ axios({
       console.log(error)
     })
 
+const like = function (){
+  axios({
+    method: 'post',
+    url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      movieDetail.value = response.data
+    })
+}
 </script>
 
 <style scoped>

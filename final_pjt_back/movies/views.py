@@ -1,4 +1,5 @@
 import requests
+from collections import Counter
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -178,7 +179,6 @@ def my_like_movies(request):
   user = request.user
   movies = user.like_movies.all()
   serializer = MovieSerializer(movies, many=True)
-  print(movies)
   return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -233,7 +233,7 @@ def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭�
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def rewiew_wordcloud(request, movie_id):
-    print(12313)
+    # print(12313)
     movie = Movie.objects.get(id=movie_id)
     reviews = movie.movie_comment.all()
     
@@ -263,13 +263,52 @@ def throw_movie(request, movie_id, username):
   else:
     return Response({"message": "You can't throw yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def thrown_movies(request):
   user = request.user
-  # thrown_movies = Thrown_Movie.objects.filter(to_user=user, is_read=False)
+  thrown_movie = Thrown_Movie.objects.filter(to_user=user, is_read=False).first()
+
+  if thrown_movie:
+    thrown_movie.is_read = True
+    thrown_movie.save()
+    serializer = ThrownMovieSerializer(thrown_movie)
+    return Response(serializer.data)
+  else:
+    return Response({"detail": "받은 영화가 없습니다."}, status=404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_catched_movies(request):
+  user = request.user
   thrown_movies = Thrown_Movie.objects.filter(to_user=user)
   serializer = ThrownMovieSerializer(thrown_movies, many=True)
-  thrown_movies.update(is_read=True)
   return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_sent_movies(request):
+  user = request.user
+  movies = Thrown_Movie.objects.filter(from_user=user)
+  serializer = ThrownMovieSerializer(movies, many=True)
+  # print(serializer.data)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_liked_genres(request):
+    user = request.user
+    movies = user.like_movies.all()
+    genres_list = []
+
+    for movie in movies:
+        for genre in movie.genre.all():  # Assuming movie.genres is a ManyToMany field
+            genres_list.append(genre.name)
+
+    genre_count = Counter(genres_list)
+    most_common_genres = genre_count.most_common()
+
+    data = []
+    for genre, count in most_common_genres:
+      data.append([genre, count])
+    return Response(data)
