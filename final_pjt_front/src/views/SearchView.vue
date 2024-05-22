@@ -21,15 +21,21 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import SearchMovieItem from '@/views/SearchMovieItem.vue'
+import { useAccountStore } from '@/stores/account';
 
 const movieName = ref('')
 const movies = ref([])
+const accountStore = useAccountStore()
+const USER_TOKEN = accountStore.token
 
 const search = function() {
   const url = `http://127.0.0.1:8000/api/v1/movies/${encodeURIComponent(movieName.value)}`
   axios({
     method: 'get',
-    url: url
+    url: url,
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
   })
   .then(response => {
     movies.value = response.data

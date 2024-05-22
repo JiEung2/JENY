@@ -41,10 +41,10 @@ const router = createRouter({
       component: SearchView
     },
     {
-      path: '/mypage/',
-      name: 'MyPage',
+      path: '/my_page',
+      name: 'MyPageView',
       component: MyPageView
-    }
+    },
   ]
 })
 

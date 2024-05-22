@@ -1,16 +1,16 @@
 import requests
+from collections import Counter
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.conf import settings
 from django.utils import timezone
-from .serializers import MovieSerializer, CommentSerializer, GenreSerializer
-from .models import Movie
-from .models import Genre
-from .models import Comment
 from krwordrank.word import summarize_with_keywords
-
+from django.contrib.auth import get_user_model
+from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
+from .models import Movie, Genre, Comment, Thrown_Movie
 
 # Create your views here.
 def getMovieData(request):
@@ -130,34 +130,73 @@ def getGenreData(request):
 def popular(request): # 인기 영화 조회
   popular_movies = Movie.objects.order_by('-popularity')[:10]
   serializer = MovieSerializer(popular_movies, many=True)
-  return Response(serializer.data)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def late_release(request): # 최근 개봉한 영화 조회
   today = timezone.now().date()
   late_movies = Movie.objects.filter(release_data__lte=today).exclude(overview="").order_by('-release_data')[:10]
   serializer = MovieSerializer(late_movies, many=True)
-  return Response(serializer.data)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def getMovieDetail(request, movie_id):
+@permission_classes([IsAuthenticated])
+def getMovieDetail(request, movie_id):  # 영화 디테일 가져오기
   movie = Movie.objects.filter(id=movie_id)
   serializer = MovieSerializer(movie, many=True)
-  return Response(serializer.data)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_movie(request, movie_name): # 영화 제목으로 영화 조회
   find_movies = Movie.objects.filter(title__icontains=movie_name)
   serializer = MovieSerializer(find_movies, many=True)
-  return Response(serializer.data)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(['GET'])
-# def search_genre(request, genre_id):
+# @permission_classes([IsAuthenticated])
+# def search_genre(request, genre_id):  # 장르 조회
 #   genre = Genre.objects.get(id = genre_id)
 #   serializer = GenreSerializer(genre)
-#   return Response(serializer.data)
+#   return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def likes_movie(request, movie_id): # movie 좋아요
+  movie = Movie.objects.get(id = movie_id)
+  user = request.user
+  print(user)
+  if user.like_movies.filter(id=movie.id).exists():
+    user.like_movies.remove(movie)
+    liked = False
+  else:
+    user.like_movies.add(movie)
+    liked = True
+  return Response({'liked': liked}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_like_movies(request):
+  user = request.user
+  movies = user.like_movies.all()
+  serializer = MovieSerializer(movies, many=True)
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_both_like(request, username):
+  User = get_user_model()
+  user = User.objects.get(username=username)
+  my_movies = set(request.user.like_movies.values_list('id', flat=True))
+  user_movies = set(user.like_movies.values_list('id', flat=True))
+  common_likes = my_movies.intersection(user_movies)
+  movies = Movie.objects.filter(id__in=common_likes)
+  serializer = MovieSerializer(movies, many=True)
+
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
   if request.method == 'GET': 
     comments = Comment.objects.filter(movie_id=movie_id)
@@ -165,6 +204,7 @@ def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
     return Response(serializer.data)
   
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def comment_create(request, movie_id): # 해당 movie_id에 댓글 작성
   if request.method == 'POST': 
     movie = Movie.objects.get(pk=movie_id)
@@ -174,6 +214,7 @@ def comment_create(request, movie_id): # 해당 movie_id에 댓글 작성
       return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'DELETE', 'PUT']) 
+@permission_classes([IsAuthenticated])
 def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭제, 수정
   comment = Comment.objects.get(pk=comment_id)
   if request.method == 'GET':
@@ -191,6 +232,7 @@ def comment_detail(request, movie_id, comment_id,): # 단일 댓글 조회, 삭�
       return Response(serializer.data)
     
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def rewiew_wordcloud(request, movie_id):
     movie = Movie.objects.get(id=movie_id)
     reviews = movie.movie_comment.all()
@@ -232,3 +274,75 @@ def getMovieGenres(request, movie_id):
 def getUserId(request):
     user_id = request.user.id
     return Response(user_id)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def throw_movie(request, movie_id, username):
+  
+  from_user = request.user
+  User = get_user_model()
+  to_user = User.objects.get(username=username)
+  if from_user != to_user:
+    movie = Movie.objects.get(id=movie_id)
+
+    thrown_movie = Thrown_Movie.objects.create(
+      to_user=to_user,
+      from_user=from_user,
+      movie=movie,
+    )
+
+    return Response({"message": "Movie throw successfully"}, status=status.HTTP_201_CREATED)
+  else:
+    return Response({"message": "You can't throw yourself"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def thrown_movies(request):
+  user = request.user
+  thrown_movie = Thrown_Movie.objects.filter(to_user=user, is_read=False).first()
+
+  if thrown_movie:
+    thrown_movie.is_read = True
+    thrown_movie.save()
+    serializer = ThrownMovieSerializer(thrown_movie)
+    return Response(serializer.data)
+  else:
+    return Response({"detail": "받은 영화가 없습니다."}, status=404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_catched_movies(request):
+  user = request.user
+  thrown_movies = Thrown_Movie.objects.filter(to_user=user)
+  serializer = ThrownMovieSerializer(thrown_movies, many=True)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_sent_movies(request):
+  user = request.user
+  movies = Thrown_Movie.objects.filter(from_user=user)
+  serializer = ThrownMovieSerializer(movies, many=True)
+  # print(serializer.data)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_liked_genres(request):
+    user = request.user
+    movies = user.like_movies.all()
+    genres_list = []
+
+    for movie in movies:
+        for genre in movie.genre.all():  # Assuming movie.genres is a ManyToMany field
+            genres_list.append(genre.name)
+
+    genre_count = Counter(genres_list)
+    most_common_genres = genre_count.most_common()
+
+    data = []
+    for genre, count in most_common_genres:
+      data.append([genre, count])
+    return Response(data)
+

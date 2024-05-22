@@ -1,20 +1,5 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import { useAccountStore } from '@/stores/account';
-import { onMounted } from 'vue';
-import { useMovieStore } from '@/stores/counter';
-
-const movieStore = useMovieStore()
-const accountStore = useAccountStore()
-
-onMounted(() => {
-  movieStore.getLatedMovieList()
-});
-
-</script>
-
 <template>
-  <body>
+  <div>
     <nav class="navbar navbar-expand bg-body-tertiary bg-dark border-bottom" data-bs-theme="dark">
       <div class="container-fluid">
         <RouterLink to="/"><img src="@/assets/logo.png" alt="Logo" width="70" height="27" class="d-inline-block align-text-top"></RouterLink>
@@ -26,49 +11,254 @@ onMounted(() => {
             <li class="nav-item ms-3">
               <RouterLink :to="{ name: 'SearchView' }" class="link text-white">검색</RouterLink>
             </li>
-            <li class="nav-item ms-3" v-if="accountStore.isLogin === false">
-              <RouterLink :to="{ name: 'login' }" class="link text-white" >로그인</RouterLink>
+            <li class="nav-item ms-3" v-if="!accountStore.isLogin">
+              <RouterLink :to="{ name: 'login' }" class="link text-white">로그인</RouterLink>
             </li>
-            <li class="nav-item ms-3" v-if="accountStore.isLogin === false">
+            <li class="nav-item ms-3" v-if="!accountStore.isLogin">
               <RouterLink :to="{ name: 'signup' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
             </li>
-            <li class="nav-item ms-3">
-              <RouterLink :to="{ name: 'home' }" class="link text-white" v-if="accountStore.isLogin === true">마이페이지</RouterLink>
+            <li class="nav-item ms-3" v-if="accountStore.isLogin">
+              <RouterLink :to="{ name: 'MyPageView' }" class="link text-white">마이페이지</RouterLink>
             </li>
-            <li class="nav-item ms-3" v-if="accountStore.isLogin === true">
-              <RouterLink :to="{ name: 'home' }" class="link text-white" >로그아웃</RouterLink>
+            <li class="nav-item ms-3" v-if="accountStore.isLogin">
+              <button type="button" class="btn btn-danger" @click="logout">로그아웃</button>
             </li>
           </ul>
         </div>
       </div>
     </nav>
     <RouterView />
-  </body>
+    <div v-if="showModal" class="modal fade show fireworks" tabindex="-1" role="dialog" style="display: block;">
+      <div class="modal-dialog modal-dialog-centered custom-modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalData.message }}</h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body d-flex justify-content-center align-items-center">
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  <img v-if="modalData.poster_path" :src="'https://image.tmdb.org/t/p/w500' + modalData.poster_path" class="img-fluid rounded-start movie-poster" :alt="modalData.title">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ modalData.title }}</h5>
+                    <p class="card-text"><small class="text-muted">{{ modalData.release_data }}</small></p>
+                    <p class="card-text"><small class="text-muted"><img class="star-icon" src="@/assets/star-icon.png" alt="">{{ modalData.vote_average }}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="fireworks-container">
+          <div v-for="n in 30" :key="n" class="firework" :style="generateRandomStyle()"></div>
+        </div> -->
+      </div>
+    </div>
+  </div>
 </template>
 
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+import { useAccountStore } from '@/stores/account';
+import { onMounted, ref } from 'vue';
+import { useMovieStore } from '@/stores/counter';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
+const movieStore = useMovieStore()
+const accountStore = useAccountStore()
+
+const showModal = ref(false)
+
+const modalData = ref({
+  title: '',
+  message: '',
+  from_user: '',
+  to_user: '',
+  release_data: '',
+  vote_average: '',
+  poster_path: ''
+})
+
+const API_URL = accountStore.API_URL
+
+const logout = async () => {
+  try {
+    await axios.post(`${API_URL}/accounts/logout/`, {}, {
+      headers: {
+        Authorization: `Token ${accountStore.token}`
+      }
+    });
+    accountStore.logout();
+    router.push({ name: 'home' });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const closeModal = () => {
+  showModal.value = false;
+}
+
+const fetchThrownMovies = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
+      headers: {
+        Authorization: `Token ${accountStore.token}`
+      }
+    });
+    const thrownMovie = response.data;
+    if (thrownMovie) {
+      const ThrownMovie = thrownMovie;
+      modalData.value = {
+        title: ThrownMovie.movie.title,
+        message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
+        from_user: ThrownMovie.from_user.username,
+        to_user: ThrownMovie.to_user.username,
+        release_data: ThrownMovie.movie.release_data,
+        vote_average: ThrownMovie.movie.vote_average,
+        poster_path: ThrownMovie.movie.poster_path
+      };
+      showModal.value = true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// const fetchThrownMovies = async () => {
+//   try {
+//     const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
+//       headers: {
+//         Authorization: `Token ${accountStore.token}`
+//       }
+//     });
+//     const thrownMovie = response.data;
+//     if (thrownMovie.length > 0) {
+//       const ThrownMovie = thrownMovie;
+//       modalData.value = {
+//         title: ThrownMovie.movie.title,
+//         message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
+//         from_user: ThrownMovie.from_user.username,
+//         to_user: ThrownMovie.to_user.username,
+//         release_data: ThrownMovie.movie.release_data,
+//         vote_average: ThrownMovie.movie.vote_average,
+//         poster_path: ThrownMovie.movie.poster_path
+//       };
+//       showModal.value = true;
+//     }
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+const generateRandomStyle = () => {
+  const size = `${Math.random() * 50 + 20}px`;
+  const top = `${Math.random() * 100}vh`;
+  const left = `${Math.random() * 100}vw`;
+  const animationDelay = `${Math.random()}s`;
+  const animationDuration = `${Math.random() * 0.5 + 1}s`;
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF3387'];
+  const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+  return {
+    width: size,
+    height: size,
+    top: top,
+    left: left,
+    backgroundColor: backgroundColor,
+    animationDelay: animationDelay,
+    animationDuration: animationDuration
+  };
+}
+
+onMounted(() => {
+  movieStore.getLatedMovieList();
+  setInterval(fetchThrownMovies, 1000000); // 20초마다 요청
+});
+</script>
+
 <style scoped>
-  template{
-    min-width: 500px;
-  }
-  .navbar{
-    font-family: 'YeongdeokSea';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/YeongdeokSea.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    background-color:#141517 !important;
-  }
+body {
+  background-color: #000;
+}
 
-  .link{
-    text-decoration: none;
-  }
-
-  body {
-    background-color: #000; /* 검정색 배경색 설정 */
-  }
-
-  #app {
-  min-height: 100vh; /* 뷰포트 전체 높이를 채우도록 설정 */
+#app {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.navbar {
+  font-family: 'YeongdeokSea';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/YeongdeokSea.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  background-color: #141517 !important;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.star-icon {
+  width: 15px;
+  height: auto;
+  margin-right: 5px;
+}
+
+.custom-modal-dialog {
+  max-width: 600px; /* 모달의 최대 너비 조정 */
+}
+
+.fireworks {
+  animation: fireworks-animation 1s ease-out;
+}
+
+@keyframes fireworks-animation {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.modal-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 폭죽 애니메이션 */
+.fireworks-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* 모달 외부 클릭 방지 */
+  z-index: 1050; /* 모달 위에 표시되도록 설정 */
+  overflow: hidden;
+}
+
+.firework {
+  position: absolute;
+  border-radius: 50%;
+  animation: firework-animation 1.5s ease-out infinite;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes firework-animation {
+  0% {
+    transform: scale(0) translate(-50%, -50%);
+    opacity: 1;
   }
+  50% {
+    transform: scale(1.5) translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
 </style>

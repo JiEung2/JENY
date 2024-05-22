@@ -17,11 +17,10 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineProps } from 'vue';
-import { useAccountStore } from '@/stores/account'
-
+import { useAccountStore } from '@/stores/account';
 
 const API_URL = import.meta.env.VITE_API_URL
-// const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
+const USER_TOKEN = accountStore.token
 
 const accountStore = useAccountStore()
 const route = useRoute()
@@ -39,7 +38,7 @@ axios({
     method: 'get',
     url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
     headers: {
-      Authorization: `Bearer ${accountStore.token}`
+      Authorization: `Token ${USER_TOKEN}`
     }
   })
     .then(response => {
@@ -63,6 +62,19 @@ axios({
     .catch(error => {
       console.log(error)
     })
+
+const like = function (){
+  axios({
+    method: 'post',
+    url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      movieDetail.value = response.data
+    })
+}
 </script>
 
 

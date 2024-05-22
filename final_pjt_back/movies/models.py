@@ -17,10 +17,11 @@ class Movie(models.Model):
     runtime = models.IntegerField()
 
 class Thrown_Movie(models.Model):
-    to_user_id = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="throwing_movies")
-    from_user_id = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="thrown_movies")
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="received_movies", on_delete=models.CASCADE)
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="sent_movies", on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
 
 class Comment(models.Model):
     content = models.CharField(max_length=100)
