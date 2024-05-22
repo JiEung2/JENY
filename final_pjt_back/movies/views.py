@@ -330,19 +330,36 @@ def get_sent_movies(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_liked_genres(request):
+  user = request.user
+  movies = user.like_movies.all()
+  genres_list = []
+
+  for movie in movies:
+      for genre in movie.genre.all():  # Assuming movie.genres is a ManyToMany field
+          genres_list.append(genre.name)
+
+  genre_count = Counter(genres_list)
+  most_common_genres = genre_count.most_common()
+
+  data = []
+  for genre, count in most_common_genres:
+    data.append([genre, count])
+  return Response(data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_is_liked(request, movie_id):
+    try:
+        movie = Movie.objects.get(id=movie_id)
+    except Movie.DoesNotExist:
+        return Response({'error': 'Movie not found'}, status=status.HTTP_404_NOT_FOUND)
+
     user = request.user
-    movies = user.like_movies.all()
-    genres_list = []
+    is_liked = user.like_movies.filter(id=movie.id).exists()
 
-    for movie in movies:
-        for genre in movie.genre.all():  # Assuming movie.genres is a ManyToMany field
-            genres_list.append(genre.name)
-
-    genre_count = Counter(genres_list)
-    most_common_genres = genre_count.most_common()
-
-    data = []
-    for genre, count in most_common_genres:
-      data.append([genre, count])
-    return Response(data)
+    context = {
+        'is_liked': is_liked
+    }
+  
+    return Response(context, status=status.HTTP_200_OK)
 

@@ -26,5 +26,6 @@ urlpatterns = [
   path('get_catched_movies/', views.get_catched_movies, name="catched_movies"),
   path('get_liked_movies/', views.my_like_movies, name='my_like_movies'),
   path('get_sent_movies/', views.get_sent_movies, name="sent_movies"),
-  path('get_liked_genres/', views.get_liked_genres, name="liked_genres")
+  path('get_liked_genres/', views.get_liked_genres, name="liked_genres"),
+  path('movies/<int:movie_id>/get_is_liked/', views.get_is_liked, name="get_is_liked"),
 ]
