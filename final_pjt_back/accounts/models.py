@@ -11,3 +11,5 @@ class User(AbstractUser):
     introduce = models.TextField(blank=True, null=True)
     mbti = models.CharField(max_length=4, blank=True, null=True)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    updated_at = models.DateTimeField(null=True)
+    see = models.BooleanField(default=True)

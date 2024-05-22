@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.conf import settings
 from django.utils import timezone
+from datetime import datetime, timedelta
 from krwordrank.word import summarize_with_keywords
 from django.contrib.auth import get_user_model
 from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
@@ -128,9 +129,31 @@ def getGenreData(request):
 
 @api_view(['GET'])
 def popular(request): # 인기 영화 조회
-  popular_movies = Movie.objects.order_by('-popularity')[:10]
+  popular_movies = Movie.objects.order_by('-popularity')[:15]
   serializer = MovieSerializer(popular_movies, many=True)
   return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def popular_many(request): # 초반 인기 영화 선택
+  user = request.user
+  if user.see or (user.updated_at and (datetime.now() - user.updated_at).total_seconds() > 60):
+    user.see = True
+    user.save()
+    popular_movies = Movie.objects.order_by('-popularity')[:100]
+    serializer = MovieSerializer(popular_movies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+  else:
+    return Response(status=status.HTTP_200_OK)
+  
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def no_see(request):
+  user = request.user
+  user.see = False
+  user.updated_at = datetime.now()
+  user.save()
+  return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def late_release(request): # 최근 개봉한 영화 조회

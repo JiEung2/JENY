@@ -7,6 +7,7 @@ urlpatterns = [
   path('getGenres/', views.getGenreData),
   path('getNowPlayingMovies/', views.getNowPlayingMovieData),
   path('movies/popular/', views.popular, name='popular'),
+  path('movies/popular_many/', views.popular_many, name='popular_many'),
   path('movies/late_release/', views.late_release, name='late_release'),
   path('movies/getMovieDetail/<int:movie_id>/', views.getMovieDetail),
   path('movies/getMovieGenres/<int:movie_id>/', views.getMovieGenres),
