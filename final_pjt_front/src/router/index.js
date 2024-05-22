@@ -7,6 +7,7 @@ import DetailView from '@/views/DetailView.vue'
 import AccountView from '@/views/AccountView.vue'
 import LogInComponent from '@/views/LogInComponent.vue'
 import SignUpComponent from '@/views/SignUpComponent.vue'
+import MyPageView from '@/views/MyPageView.vue'
 
 
 
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/search',
       name: 'SearchView',
       component: SearchView
+    },
+    {
+      path: '/my_page',
+      name: 'MyPageView',
+      component: MyPageView
     },
   ]
 })

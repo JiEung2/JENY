@@ -18,7 +18,7 @@
               <RouterLink :to="{ name: 'signup' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin">
-              <RouterLink :to="{ name: 'home' }" class="link text-white">마이페이지</RouterLink>
+              <RouterLink :to="{ name: 'MyPageView' }" class="link text-white">마이페이지</RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin">
               <button type="button" class="btn btn-danger" @click="logout">로그아웃</button>
@@ -52,9 +52,9 @@
             </div>
           </div>
         </div>
-        <div class="fireworks-container">
+        <!-- <div class="fireworks-container">
           <div v-for="n in 30" :key="n" class="firework" :style="generateRandomStyle()"></div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -111,9 +111,9 @@ const fetchThrownMovies = async () => {
         Authorization: `Token ${accountStore.token}`
       }
     });
-    const thrownMovies = response.data;
-    if (thrownMovies.length > 0) {
-      const ThrownMovie = thrownMovies[0];
+    const thrownMovie = response.data;
+    if (thrownMovie) {
+      const ThrownMovie = thrownMovie;
       modalData.value = {
         title: ThrownMovie.movie.title,
         message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
@@ -130,6 +130,31 @@ const fetchThrownMovies = async () => {
   }
 }
 
+// const fetchThrownMovies = async () => {
+//   try {
+//     const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
+//       headers: {
+//         Authorization: `Token ${accountStore.token}`
+//       }
+//     });
+//     const thrownMovie = response.data;
+//     if (thrownMovie.length > 0) {
+//       const ThrownMovie = thrownMovie;
+//       modalData.value = {
+//         title: ThrownMovie.movie.title,
+//         message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
+//         from_user: ThrownMovie.from_user.username,
+//         to_user: ThrownMovie.to_user.username,
+//         release_data: ThrownMovie.movie.release_data,
+//         vote_average: ThrownMovie.movie.vote_average,
+//         poster_path: ThrownMovie.movie.poster_path
+//       };
+//       showModal.value = true;
+//     }
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 const generateRandomStyle = () => {
   const size = `${Math.random() * 50 + 20}px`;
   const top = `${Math.random() * 100}vh`;
@@ -151,7 +176,7 @@ const generateRandomStyle = () => {
 
 onMounted(() => {
   movieStore.getLatedMovieList();
-  setInterval(fetchThrownMovies, 20000); // 20초마다 요청
+  setInterval(fetchThrownMovies, 1000000); // 20초마다 요청
 });
 </script>
 
