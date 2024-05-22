@@ -5,23 +5,29 @@
     <br>
     <DetailInfo :id="id" :movieDetail="movieDetail" :movieComment="movieComment"/>
   </div>
+
 </template>
+
 
 <script setup>
 import DetailPreview from '@/components/DetailPreview.vue'
 import DetailInfo from '@/components/DetailInfo.vue'
 import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
-import { defineProps } from 'vue';
+
 import { onMounted, ref } from 'vue';
-import { useMovieStore } from '@/stores/counter';
+import { useRoute } from 'vue-router';
+import { defineProps } from 'vue';
+import { useAccountStore } from '@/stores/account'
+
 
 const API_URL = import.meta.env.VITE_API_URL
-const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
+// const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
 
+const accountStore = useAccountStore()
 const route = useRoute()
 const movieDetail = ref([])
 const movieComment = ref([])
+const id = route.params.id
 
 const props = defineProps({
   id: {
@@ -29,13 +35,11 @@ const props = defineProps({
   },
 })
 
-const id = route.params.id
-
 axios({
     method: 'get',
     url: `${API_URL}/api/v1/movies/getMovieDetail/${id}`,
     headers: {
-      Authorization: `Bearer ${USER_TOKEN.value}`
+      Authorization: `Bearer ${accountStore.token}`
     }
   })
     .then(response => {
@@ -46,7 +50,7 @@ axios({
         method: 'get',
         url: `${API_URL}/api/v1/movies/${id}/comments/`,
         headers: {
-          Authorization: `Bearer ${USER_TOKEN.value}`
+          Authorization: `Bearer ${accountStore.token}`
         }
       })
         .then(response => {
@@ -59,8 +63,8 @@ axios({
     .catch(error => {
       console.log(error)
     })
-
 </script>
+
 
 <style scoped>
 .container {

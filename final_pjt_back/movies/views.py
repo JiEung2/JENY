@@ -151,11 +151,11 @@ def search_movie(request, movie_name): # 영화 제목으로 영화 조회
   serializer = MovieSerializer(find_movies, many=True)
   return Response(serializer.data)
 
-@api_view(['GET'])
-def search_genre(request, genre_id):
-  genre = Genre.objects.get(id = genre_id)
-  serializer = GenreSerializer(genre)
-  return Response(serializer.data)
+# @api_view(['GET'])
+# def search_genre(request, genre_id):
+#   genre = Genre.objects.get(id = genre_id)
+#   serializer = GenreSerializer(genre)
+#   return Response(serializer.data)
 
 @api_view(['GET'])
 def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
@@ -206,7 +206,7 @@ def rewiew_wordcloud(request, movie_id):
           "그러나", "받", "못하", "그런", "또", "문제", "사회", "많", "그리고", "좋", "크", "따르", "중", "나오", "가지", "씨", "시간", 
           "만들", "지금", "생각하", "그러", "속", "하나", "집", "살", "모르", "적", "월", "데", "자신", "안", "어떤", "내", "내", 
           "경우", "명", "생각", "시작", "우리", "다시", "이런", "그녀", "이러", "앞", "보이", "번", "나", "다른", "어떻", "전", "말", 
-          "로", "이렇", "약", "분", "영화", "하게", "있어요.", "되는"
+          "로", "이렇", "약", "분", "영화", "하게", "있어요.", "되는", "콩과",
       }
     keywords = summarize_with_keywords(texts, min_count=2, max_length=10, 
         beta=0.85, max_iter=10, stopwords=stopwords, verbose=True)
@@ -215,9 +215,20 @@ def rewiew_wordcloud(request, movie_id):
     for key, val in keywords.items():
       temp = [key, int(val*100)]
       wordlist.append(temp)
+  
+    return Response(wordlist)
     
-    print(wordlist)
+@api_view(['GET'])
+def getMovieGenres(request, movie_id):
+    movie = Movie.objects.get(id=movie_id)
+    serializer = MovieSerializer(movie)
 
-    # return Response(wordlist)
-    
-    
+    genre_ids = serializer.data["genre"]
+    genre_names = Genre.objects.filter(id__in=genre_ids).values_list('name', flat=True)
+
+    return Response(genre_names)
+
+@api_view(['GET'])
+def getUserId(request):
+    user_id = request.user.id
+    return Response(user_id)
