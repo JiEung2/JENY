@@ -2,27 +2,29 @@
   <div>
     <h4 class="header">마음에 든 영화</h4>
   </div>
-  <div class="carousel-container">
+  <div class="carousel-container" v-if="props.likedMovies.length">
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
-      <div class="movie-row" v-if="throwMovies.length">
+      <div class="movie-row" >
         <div
           @click="goToDetailPage(movie)" 
           class="movie-card-wrapper" 
-          v-for="movie in throwMovies" 
+          v-for="movie in props.likedMovies" 
           :key="movie.id">
           <MovieItemView :movie="movie" />
         </div>
       </div>
+      
     </div>
     <button class="scroll-button right" @click="scrollRight">→</button>
   </div>
+  <div v-else > <h5 class="content">아직 좋아요 누른 영화가 없습니다.</h5></div>
 </template>
 
 <script setup>
 import MovieItemView from '@/views/MovieItemView.vue';
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import { useAccountStore } from '@/stores/account';
 import { useRouter } from 'vue-router';
 
@@ -30,26 +32,13 @@ const router = useRouter(); // router 변수 선언
 const accountStore = useAccountStore();
 const API_URL = accountStore.API_URL;
 
-const throwMovies = ref([]);
 const movieContainer = ref(null); // ref 선언
 
-const getThrowMovies = async function() {
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/get_liked_movies/`, {
-      headers: {
-        Authorization: `Token ${accountStore.token}`
-      }
-    });
-    console.log(response);
-    throwMovies.value = response.data;
-    console.log(throwMovies.value);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-onMounted(() => {
-  getThrowMovies();
+const props = defineProps({
+  likedMovies: {
+    type: Object,
+    required: true
+  },
 });
 
 const scrollLeft = () => {
@@ -82,6 +71,14 @@ const goToDetailPage = (movie) => {
 
 <style scoped>
 .header {
+  margin-top: 20px;
+  margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
+  color: white; /* 글씨가 흐리지 않도록 검은색 지정 */
+  font-family: "Noto Sans KR", sans-serif; /* 폰트 패밀리 설정 */
+  font-weight: 600; /* 폰트 굵기 설정 */
+}
+
+.content {
   margin-top: 20px;
   margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
   color: white; /* 글씨가 흐리지 않도록 검은색 지정 */

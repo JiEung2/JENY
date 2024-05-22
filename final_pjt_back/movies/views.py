@@ -176,8 +176,9 @@ def likes_movie(request, movie_id): # movie 좋아요
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def my_like_movies(request):
-  user = request.user
+def liked_movies(request, username):
+  User = get_user_model()
+  user = User.objects.get(username=username)
   movies = user.like_movies.all()
   serializer = MovieSerializer(movies, many=True)
   return Response(serializer.data, status=status.HTTP_200_OK)
@@ -286,7 +287,7 @@ def throw_movie(request, movie_id, username):
   if from_user != to_user:
     movie = Movie.objects.get(id=movie_id)
 
-    thrown_movie = Thrown_Movie.objects.create(
+    Thrown_Movie.objects.create(
       to_user=to_user,
       from_user=from_user,
       movie=movie,
@@ -362,4 +363,3 @@ def get_is_liked(request, movie_id):
     }
   
     return Response(context, status=status.HTTP_200_OK)
-

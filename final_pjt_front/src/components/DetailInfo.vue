@@ -6,7 +6,7 @@
     <div class="movie-container">
       <img v-if="is_liked" @click="like" src="@/assets/like.png" alt="like" style="width: 50px;">
       <img @click="like" v-else src="@/assets/dislike.png" alt="dislike" style="width: 50px;">
-      <img src="@/assets/throw.png" alt="throw" style="width: 50px;"><br><br>
+      <img @click="fetchProfiles" src="@/assets/throw.png" alt="throw" style="width: 50px;"><br><br>
     </div>
     <div class="movie-details">
       <h2>{{ movieDetail[0].title }}</h2><br><br>
@@ -26,27 +26,32 @@
     <br>
     <h2>리뷰</h2>
     <span v-for="(comment, index) in movieComments" :key="comment.id" style="padding-top: 10px;">
-      {{ index + 1 }}. {{ comment.content }}
+      {{ index + 1 }}. 
+      <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.user }}</a>: {{ comment.content }}
       <span v-if="comment.user === userId"></span>
       <a type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
       <a type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;" @click="commentDelete(comment.id)">삭제</a>
     </span><br>
     <form @submit="handleSubmit">
       <input type="text" name="content" v-model="commentContent">
-      <button type="submit" value="작성">작성</button>
+      <button type="submit">작성</button>
     </form>
     <div class="word-cloud">
       <WordCloud/>
     </div>
+
+    <ThrowModal v-if="showModal" :users="profiles" :movie="movieDetail[0]" @close="closeModal" />
   </div>
 </template>
 
 <script setup>
 import { defineProps } from 'vue';
 import WordCloud from './WordCloud.vue';
+import ThrowModal from '@/components/ThrowModal.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useAccountStore } from '@/stores/account';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   id: {
@@ -56,20 +61,23 @@ const props = defineProps({
     type: Object,
   },
   movieComment: {
-    type: Object,
+    type: Array,
   },
 });
 
+const router = useRouter();
 const accountStore = useAccountStore();
 const movieId = props.id;
 const API_URL = import.meta.env.VITE_API_URL;
 const USER_TOKEN = accountStore.token;
 
 const genres = ref([]);
-const userId = ref([]);
-const movieComments = ref([...props.movieComment]);
+const userId = ref('');
+const movieComments = ref(props.movieComment);
 const commentContent = ref('');
 const is_liked = ref(false);
+const showModal = ref(false);
+const profiles = ref([]);
 
 const fetchComments = () => {
   axios({
@@ -125,6 +133,10 @@ const commentDelete = (commentId) => {
     });
 };
 
+const showUserProfile = (user_id) => {
+  router.push({ name: 'MyPageView', params: { id: user_id } });
+};
+
 // 장르 가져오는 axios
 axios({
   method: 'get',
@@ -132,7 +144,6 @@ axios({
   headers: {
     Authorization: `Token ${accountStore.token}`
   }
->>>>>>> final_pjt_front/src/components/DetailInfo.vue
 })
   .then(response => {
     genres.value = response.data;
@@ -190,21 +201,26 @@ const get_is_like = () => {
     });
 };
 
-// const throw_movie = () => {
-//   axios({
-//     method: 'get',
-//     url: `${API_URL}/api/v1/throw/`,
-//     headers: {
-//       Authorization: `Token ${USER_TOKEN}`
-//     }
-//   })
-//     .then(response => {
-//       is_liked.value = response.data.is_liked;
-//     })
-//     .catch(error => {
-//       console.log(error);
-//     });
-// };
+const fetchProfiles = () => {
+  axios({
+    method: 'get',
+    url: `${API_URL}/accounts/get_followings/`,  // 이 URL은 실제 API 엔드포인트로 변경되어야 합니다.
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      profiles.value = response.data;
+      showModal.value = true;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
 
 onMounted(() => {
   fetchComments();

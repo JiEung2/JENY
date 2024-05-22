@@ -3,82 +3,81 @@
     <div class="card mb-3 custom-card" style="max-width: 100%;">
       <div class="row g-0 align-items-center">
         <div class="col-md-2 d-flex flex-column align-items-center mt-3">
-          <img v-if="user.image" :src="'http://127.0.0.1:8000' + user.image" class="img-fluid rounded-circle" alt="...">
+          <img v-if="user.image" :src="API_URL + user.image" class="img-fluid rounded-circle" alt="...">
           <img v-else src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDBJhKc_AmFlxPGktgktgKpzusO8p6mryOtw&s" class="img-fluid rounded-circle" alt="...">
           <div class="follow-info mt-3 mb-3">
             <p><small class="text-light me-3 ms-2">팔로워 수: {{ user.followers }}</small></p>
             <p><small class="text-light">팔로잉 수: {{ user.followings }}</small></p>
           </div>
+          <div class="follow-info mt-1 mb-3" v-if="me.username !== user.username">
+            <button v-if="is_followed" @click="follow" class="btn btn-unfollow">팔로우 취소</button>
+            <button v-else @click="follow" class="btn btn-follow me-2">팔로우</button>
+          </div>
         </div>
         <div class="col-md-8">
-          <div class="card-body">
-            <h5 class="text-light">{{ user.username }}</h5>
-            <p v-if="user.introduce === ''"><small class="text-secondary">자기소개를 작성해보세요</small></p>
-            <p v-else><small class="text-secondary">간단한 소개: {{ user.introduce }}</small></p>
-
-            <p class="card-text" v-if="user.mbti === ''"><small class="text-secondary">mbti를 등록해보세요.</small></p>
-            <p class="card-text" v-else><small class="text-secondary">mbti: {{ user.mbti }}</small></p>
-
-            <button type="button" class="btn btn-outline-light mt-3" @click="editProfile">프로필 수정</button>
-            
-            <div v-if="isEditing">
-              <form @submit.prevent="updateProfile">
-                <div class="mb-3">
-                  <label for="introduce" class="form-label text-light">자기소개</label>
-                  <textarea v-model="user.introduce" class="form-control bg-dark text-light" id="introduce" rows="3"></textarea>
-                </div>
-                <div class="mb-3">
-                  <label for="mbti" class="form-label text-light">MBTI</label>
-                  <input type="text" v-model="user.mbti" class="form-control bg-dark text-light" id="mbti">
-                </div>
-                <div class="mb-3">
-                  <label for="image" class="form-label text-light">프로필 이미지</label>
-                  <input type="file" @change="onFileChange" class="form-control bg-dark text-light" id="image">
-                </div>
-                <button type="submit" class="btn btn-primary">저장</button>
-              </form>
-              <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
-            </div>
+          <div v-if="me.username === user.username">
+            <MyInfo :user="me" @profile-updated="handleProfileUpdated"/>
+          </div>
+          <div v-else>
+            <UserInfo :user="user" />
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="container">
-    <ThrowMovie />
-    <CatchedMovie />
-    <LikedMovie />
+    <div class="container" v-if="me.username === user.username">
+      <ThrowMovie />
+      <CatchedMovie />
+    </div>
+    <div class="container">
+      <LikedMovie :likedMovies="likedMovies"/>
+    </div>
   </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useAccountStore } from '@/stores/account'
+import { defineProps, ref, onMounted } from 'vue';
+import { useAccountStore } from '@/stores/account';
 import axios from 'axios';
 import ThrowMovie from '@/views/ThrowMovie.vue';
 import CatchedMovie from '@/views/CatchedMovie.vue';
-import LikedMovie from '@/views/LikedMovie.vue'
+import LikedMovie from '@/views/LikedMovie.vue';
+import MyInfo from '@/components/MyInfo.vue';
+import UserInfo from '@/components/UserInfo.vue';
 
-const accountStore = useAccountStore()
-const API_URL = accountStore.API_URL
+const accountStore = useAccountStore();
+const API_URL = accountStore.API_URL;
+const likedMovies = ref([]);
+const is_followed = ref(false);
 
-const user = ref({
+const props = defineProps({
+  id: {
+    type: Number,
+    required: true
+  },
+});
+
+const me = ref({
   username: '',
   followings: 0,
   followers: 0,
   introduce: '',
   mbti: '',
   image: '',
-})
+});
 
-const isEditing = ref(false)
-const profileImage = ref(null)
-const errorMessage = ref('')
+const user = ref({
+  id: '',
+  username: '',
+  followings: 0,
+  followers: 0,
+  introduce: '',
+  mbti: '',
+  image: '',
+});
 
 const getMyInfo = function() {
   axios({
-    method:'get',
+    method: 'get',
     url: `${API_URL}/accounts/my_profile/`,
     headers: {
       Authorization: `Token ${accountStore.token}`
@@ -86,73 +85,111 @@ const getMyInfo = function() {
   })
   .then((response) => {
     const tmp_user = response.data;
-    if(tmp_user) {
-      user.value = {
+    if (tmp_user) {
+      me.value = {
         username: tmp_user.username,
         followings: tmp_user.followings_count,
         followers: tmp_user.followers_count,
         introduce: tmp_user.introduce,
         mbti: tmp_user.mbti,
         image: tmp_user.image,
-      }
+      };
     }
   })
   .catch((error) => {
-    console.error(error)
-  })
-}
+    console.error(error);
+  });
+};
 
-const editProfile = () => {
-  isEditing.value = true
-}
-
-const onFileChange = (event) => {
-  profileImage.value = event.target.files[0]
-}
-
-const updateProfile = () => {
-  errorMessage.value = ''; // 오류 메시지 초기화
-  const formData = new FormData()
-  formData.append('introduce', user.value.introduce)
-  formData.append('mbti', user.value.mbti)
-  if (profileImage.value) {
-    formData.append('image', profileImage.value)
-  }
-
+const getUserInfo = function() {
   axios({
-    method: 'put',
-    url: `${API_URL}/accounts/update_profile/`,
+    method: 'get',
+    url: `${API_URL}/accounts/user_profile/${props.id}/`,
     headers: {
-      Authorization: `Token ${accountStore.token}`,
-      'Content-Type': 'multipart/form-data'
-    },
-    data: formData
-  })
-  .then(response => {
-    const updated_info = response.data
-    isEditing.value = false
-    user.value.introduce = updated_info.introduce
-    user.value.mbti = updated_info.mbti
-    user.value.image = updated_info.image
-  })
-  .catch(error => {
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage.value = error.response.data.message;
-    } else {
-      errorMessage.value = '프로필 업데이트 중 오류가 발생했습니다.';
+      Authorization: `Token ${accountStore.token}`
     }
-    console.error(error)
   })
-}
+  .then((response) => {
+    const tmp_user = response.data;
+    if (tmp_user) {
+      user.value = {
+        id: tmp_user.id,
+        username: tmp_user.username,
+        followings: tmp_user.followings_count,
+        followers: tmp_user.followers_count,
+        introduce: tmp_user.introduce,
+        mbti: tmp_user.mbti,
+        image: tmp_user.image,
+      };
+    }
+    get_is_followed();
+  }).then((response) => {
+    axios({
+      method:'get',
+      url: `${API_URL}/api/v1/get_liked_movies/${user.value.username}/`,
+      headers: {
+        Authorization: `Token ${accountStore.token}`
+      },
+    }).then((response) =>{
+      console.log(response);
+      likedMovies.value = response.data;
+      console.log(likedMovies.value);
+    }).catch ((error)=> {
+      console.log(error);
+    });
+  })
+  .catch((error) => {
+    console.log(props.id);
+    console.error(error);
+  });
+};
+
+const get_is_followed = function() {
+  axios({
+    method: 'get',
+    url: `${API_URL}/accounts/is_followed/${user.value.id}/`,
+    headers: {
+      Authorization: `Token ${accountStore.token}`
+    },
+  })
+  .then((response) => {
+    is_followed.value = response.data.is_followed;
+    console.log(1)
+    console.log(is_followed.value)
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+};
+
+const follow = function() {
+  axios({
+    method: 'post',
+    url: `${API_URL}/accounts/follow/${user.value.id}/`,
+    headers: {
+      Authorization: `Token ${accountStore.token}`
+    },
+  })
+  .then((response) => {
+    console.log('팔로우/팔로우 취소 완료');
+    is_followed.value = !is_followed.value;
+    getUserInfo();
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+};
+
+const handleProfileUpdated = (updated_info) => {
+  user.value = { ...user.value, ...updated_info };
+  me.value = { ...me.value, ...updated_info };
+};
 
 onMounted(() => {
-  getMyInfo()
-})
+  getMyInfo();
+  getUserInfo();
+});
 </script>
-
-
-
-
 
 <style scoped>
 .custom-card {
@@ -219,5 +256,19 @@ onMounted(() => {
 
 .text-danger {
   color: #e50914 !important; /* 넷플릭스 스타일의 빨간색 오류 메시지 */
+}
+
+.btn-follow, .btn-unfollow {
+  background-color: #444; /* 중간 정도 어두운 배경색 */
+  border: none;
+  color: #f5f5f5; /* 밝은 텍스트 색상 */
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s;
+}
+
+.btn-follow:hover, .btn-unfollow:hover {
+  background-color: #555; /* 호버 시 약간 더 밝은 배경색 */
 }
 </style>

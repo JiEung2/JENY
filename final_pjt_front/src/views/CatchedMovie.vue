@@ -2,10 +2,10 @@
   <div>
     <h4 class="header">내가 받은 영화</h4>
   </div>
-  <div class="carousel-container">
+  <div class="carousel-container"  v-if="throwMovies.length">
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
-      <div class="movie-row" v-if="throwMovies.length">
+      <div class="movie-row">
         <div
           @click="goToDetailPage(movie.movie)" 
           class="movie-card-wrapper" 
@@ -17,6 +17,7 @@
     </div>
     <button class="scroll-button right" @click="scrollRight">→</button>
   </div>
+  <div><h6 class="content">아직 받은 영화가 없습니다.</h6></div>
 </template>
 
 <script setup>
@@ -82,6 +83,14 @@ const goToDetailPage = (movie) => {
 
 <style scoped>
 .header {
+  margin-top: 20px;
+  margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
+  color: white; /* 글씨가 흐리지 않도록 검은색 지정 */
+  font-family: "Noto Sans KR", sans-serif; /* 폰트 패밀리 설정 */
+  font-weight: 600; /* 폰트 굵기 설정 */
+}
+
+.content {
   margin-top: 20px;
   margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
   color: white; /* 글씨가 흐리지 않도록 검은색 지정 */

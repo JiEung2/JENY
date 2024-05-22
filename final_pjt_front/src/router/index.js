@@ -8,6 +8,7 @@ import AccountView from '@/views/AccountView.vue'
 import LogInComponent from '@/views/LogInComponent.vue'
 import SignUpComponent from '@/views/SignUpComponent.vue'
 import MyPageView from '@/views/MyPageView.vue'
+import UserInfo from '@/components/UserInfo.vue'
 
 
 
@@ -41,9 +42,10 @@ const router = createRouter({
       component: SearchView
     },
     {
-      path: '/my_page',
+      path: '/my_page/:id',
       name: 'MyPageView',
-      component: MyPageView
+      component: MyPageView,
+      props: true
     },
   ]
 })
