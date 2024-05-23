@@ -8,6 +8,7 @@ https://fringe-comma-59e.notion.site/f66ac06328e74bba9357e0fdc20d2885
 ### ERD
 https://fringe-comma-59e.notion.site/ERD-20b77c08524246998a3aa0c1b89786ac?pvs=4
 
+
 ### 영화 추천 알고리즘 기반 커뮤니티 서비스
 - 개발도구
   - Python 3.9.x
@@ -208,6 +209,15 @@ https://fringe-comma-59e.notion.site/ERD-20b77c08524246998a3aa0c1b89786ac?pvs=4
         - DELETE 요청 시 단일 댓글 삭제
         - PUT 요청 시 단일 댓글 수정
 
+https://fringe-comma-59e.notion.site/f66ac06328e74bba9357e0fdc20d2885?pvs=4
+### 소감
+#### 남용  
+1. 프로젝트 타겟을 지정하자!
+2. J처럼 설계하자!
+3. 건강이 최고!
 
-### 6일차
-#### Detail 페이지 구현
+#### 지응
+1. 설계를 꼼꼼하게 하자! 특히 데이터베이스!
+2. 프로젝트 기간을 파악하고 범위를 지정하자!
+3. 끝까지 고민하고 계속 생각하자!
+4. 건강이 최고!
