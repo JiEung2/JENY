@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 
 # Create your views here.
@@ -21,7 +22,7 @@ def my_profile(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request, user_id):
     User = get_user_model()
-    user = User.objects.get(id=user_id)
+    user = get_object_or_404(User, id=user_id)
     serializers = UserSerializer(user)
     return Response(serializers.data, status=status.HTTP_200_OK)
 
@@ -44,7 +45,7 @@ def update_profile(request):
 @permission_classes([IsAuthenticated])
 def follow(request, user_id):
     User = get_user_model()
-    person = User.objects.get(id=user_id)
+    person = get_object_or_404(User, id=user_id)
     if person != request.user:
         if person.followers.filter(id=request.user.id).exists():
             person.followers.remove(request.user)
@@ -74,3 +75,10 @@ def get_followings(request):
     
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_user(request, username):
+    User = get_user_model()
+    user = get_object_or_404(User, username=username)
+    serialzer = UserSerializer(user)
+    return Response(serialzer.data)

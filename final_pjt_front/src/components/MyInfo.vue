@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card-body">
+    <div class="card-body align-items-center">
       <h5 class="text-light">{{ user.username }}</h5>
       <p v-if="user.introduce === ''"><small class="text-secondary">자기소개를 작성해보세요</small></p>
       <p v-else><small class="text-secondary">간단한 소개: {{ user.introduce }}</small></p>
@@ -26,11 +26,13 @@
             <label for="image" class="form-label text-light">프로필 이미지</label>
             <input type="file" @change="onFileChange" class="form-control bg-dark text-light" id="image">
           </div>
-          <button type="submit" class="btn btn-primary">저장</button>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary">저장</button>
+          </div>
         </form>
         <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
       </div>
-      <button type="button" class="btn btn-outline-light mt-3" @click="editProfile">프로필 수정</button>
+      <button v-if="!isEditing" type="button" class="btn btn-outline-light mt-3" @click="editProfile">프로필 수정</button>
     </div>
   </div>
 </template>
@@ -158,21 +160,17 @@ const updateProfile = () => {
   color: #1c1c1e;
 }
 
-/* .btn-primary {
-  background-color: #e50914;
-  border: none;
-} */
-/* 
-.btn-primary:hover {
-  background-color: blue;
-} */
-
 .text-danger {
   color: #e50914 !important; /* 넷플릭스 스타일의 빨간색 오류 메시지 */
 }
+
 .word-cloud {
   margin: 0 auto;
   text-align: center; /* Optional: center the text inside the word cloud */
+}
+
+.text-center {
+  text-align: center;
 }
 
 </style>

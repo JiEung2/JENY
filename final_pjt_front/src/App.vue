@@ -5,11 +5,11 @@
         <RouterLink to="/"><img src="@/assets/logo.png" alt="Logo" width="70" height="27" class="d-inline-block align-text-top"></RouterLink>
         <div class="collapse navbar-collapse d-flex justify-content-end align-items-center" id="navbarNav">
           <ul class="navbar-nav ms-auto d-flex align-items-center">
-            <li class="nav-item ms-3">
+            <!-- <li class="nav-item ms-3">
               <RouterLink to="/" class="link text-white"><img src="@/assets/bell.png" alt="bell" height="27"></RouterLink>
-            </li>
+            </li> -->
             <li class="nav-item ms-3">
-              <RouterLink :to="{ name: 'SearchView' }" class="link text-white">검색</RouterLink>
+              <RouterLink :to="{ name: 'SearchView' }" class="link text-white"><img src="@/assets/search.png" alt="search" height="27"></RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="!accountStore.isLogin">
               <RouterLink :to="{ name: 'login' }" class="link text-white">로그인</RouterLink>

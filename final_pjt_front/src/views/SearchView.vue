@@ -1,6 +1,6 @@
 <template>
   <div class="search-container">
-    <form class="d-flex search-form" role="search" @submit.prevent="search">
+    <form class="d-flex search-form" role="search" @submit.prevent="search_movie">
       <input
         v-model="movieName"
         class="form-control me-2 search-input"
@@ -28,7 +28,7 @@ const movies = ref([])
 const accountStore = useAccountStore()
 const USER_TOKEN = accountStore.token
 
-const search = function() {
+const search_movie = function() {
   const url = `http://127.0.0.1:8000/api/v1/movies/${encodeURIComponent(movieName.value)}`
   axios({
     method: 'get',

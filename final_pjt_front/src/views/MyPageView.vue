@@ -2,7 +2,7 @@
   <div class="container mt-4">
     <div class="card mb-3 custom-card" style="max-width: 100%;">
       <div class="row g-0 align-items-center">
-        <div class="col-md-2 d-flex flex-column align-items-center mt-3">
+        <div class="d-flex flex-column align-items-center mt-3">
           <img v-if="user.image" :src="API_URL + user.image" class="img-fluid rounded-circle" alt="...">
           <img v-else src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDBJhKc_AmFlxPGktgktgKpzusO8p6mryOtw&s" class="img-fluid rounded-circle" alt="...">
           <div class="follow-info mt-3 mb-3">
@@ -13,15 +13,14 @@
             <button v-if="is_followed" @click="follow" class="btn btn-unfollow">팔로우 취소</button>
             <button v-else @click="follow" class="btn btn-follow me-2">팔로우</button>
           </div>
-        </div>
-        <div class="col-md-8">
-          <div v-if="me.username === user.username">
-            <MyInfo :user="me" @profile-updated="handleProfileUpdated" :defaultWords="defaultWords"/>
+          <div class="align-items-center">
+            <div v-if="me.username === user.username">
+              <MyInfo :user="me" @profile-updated="handleProfileUpdated" :defaultWords="defaultWords"/>
+            </div>
+            <div v-else>
+              <UserInfo :user="user" :defaultWords="defaultWords"/>
+            </div>
           </div>
-          <div v-else>
-            <UserInfo :user="user" :defaultWords="defaultWords"/>
-          </div>
-
         </div>
       </div>
     </div>
