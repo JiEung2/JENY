@@ -25,18 +25,25 @@
     <br>
     <br>
     <h2>리뷰</h2>
-    <span v-for="(comment, index) in movieComments" :key="comment.id" style="padding-top: 10px;">
-      {{ index + 1 }}. 
-      <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.user }}</a>: {{ comment.content }}
-      <span v-if="comment.user === userId"></span>
-      <a type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
-      <a type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;" @click="commentDelete(comment.id)">삭제</a>
-    </span><br>
-    <form @submit="handleSubmit">
-      <input type="text" name="content" v-model="commentContent">
-      <button type="submit">작성</button>
+    
+    <div>
+      <div v-for="(comment, index) in movieComments" style="display: flex; justify-content: space-between; padding: 10px;" >
+        <span>
+          <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.userName }}</a>: {{ comment.content }}
+        </span>
+        <span>
+          <a v-if="comment.user === userId" type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
+          <a v-if="comment.user === userId" type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;" @click="commentDelete(comment.id)">삭제</a>
+        </span>
+      </div>
+    </div>
+
+    <div style="padding: 50px;">
+      <form @submit="handleSubmit">
+      <input type="text" name="content" placeholder="댓글을 입력하세요." v-model="commentContent" style="width: 300px;">
+      <button type="submit" value="작성"> 작성</button>
     </form>
-    <div class="word-cloud">
+    </div>
       <WordCloud/>
     </div>
 
@@ -66,14 +73,15 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const accountStore = useAccountStore();
-const movieId = props.id;
+const accountStore = useAccountStore()
+const movieId = props.id
+const genres = ref([])
+const userId = ref([])
+const userName = ref([])
+const movieComments = ref([...props.movieComment])
 const API_URL = import.meta.env.VITE_API_URL;
 const USER_TOKEN = accountStore.token;
 
-const genres = ref([]);
-const userId = ref('');
-const movieComments = ref(props.movieComment);
 const commentContent = ref('');
 const is_liked = ref(false);
 const showModal = ref(false);
@@ -88,11 +96,36 @@ const fetchComments = () => {
     }
   })
     .then(response => {
-      movieComments.value = response.data;
+      movieComments.value = response.data.map(comment => ({
+        ...comment,
+        userName: '' // 댓글 작성자의 이름을 담을 속성
+      }));
+      // 작성자의 이름을 가져오기 위해 fetchUserNames 함수 호출
+      fetchUserNames(movieComments.value);
     })
     .catch(error => {
       console.log(error);
     });
+};
+
+const fetchUserNames = (comments) => {
+  // 각 댓글의 작성자의 이름을 가져오는 비동기 함수
+  comments.forEach(comment => {
+    axios({
+      method: 'get',
+      url: `http://127.0.0.1:8000/api/v1/movies/getUserName/${comment.user}/`,
+      headers: {
+          Authorization: `Token ${accountStore.token}`
+        }
+    })
+      .then(response => {
+        // 댓글 작성자의 이름을 댓글 객체에 설정
+        comment.userName = response.data;
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  });
 };
 
 const handleSubmit = (event) => {
@@ -227,6 +260,7 @@ onMounted(() => {
   get_is_like()
 });
 </script>
+
 
 <style scoped>
 .movie-info {

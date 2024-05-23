@@ -12,6 +12,7 @@ urlpatterns = [
   path('movies/late_release/', views.late_release, name='late_release'),
   path('movies/getMovieDetail/<int:movie_id>/', views.getMovieDetail),
   path('movies/getMovieGenres/<int:movie_id>/', views.getMovieGenres),
+  path('movies/getUserName/<int:user_id>/', views.getUserName),
   path('movies/getUserId/', views.getUserId),
   path('movies/like_movies/', views.like_movies, name='like_movies'),
   path('movies/<str:movie_name>/', views.search_movie, name='search_movie'),

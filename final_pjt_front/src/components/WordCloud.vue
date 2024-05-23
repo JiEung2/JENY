@@ -1,7 +1,7 @@
 <template>
-  <div v-if="!hasError && defaultWords.length > 0">
+  <div v-if="!hasError && defaultWords.length > 0" >
     <vue-word-cloud
-      style="height: 480px; width: 640px;"
+      style="height: 240px; width: 320px;"
       :words="defaultWords"
       :color="([, weight]) => {
         if (weight > 450) return '#FF6B6B';
