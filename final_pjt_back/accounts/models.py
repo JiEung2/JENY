@@ -13,3 +13,4 @@ class User(AbstractUser):
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     updated_at = models.DateTimeField(null=True)
     see = models.BooleanField(default=True)
+    is_selected = models.BooleanField(default=False)

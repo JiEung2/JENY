@@ -173,31 +173,7 @@ const goToMyPage = () => {
   })
   
 }
-// const fetchThrownMovies = async () => {
-//   try {
-//     const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
-//       headers: {
-//         Authorization: `Token ${accountStore.token}`
-//       }
-//     });
-//     const thrownMovie = response.data;
-//     if (thrownMovie.length > 0) {
-//       const ThrownMovie = thrownMovie;
-//       modalData.value = {
-//         title: ThrownMovie.movie.title,
-//         message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
-//         from_user: ThrownMovie.from_user.username,
-//         to_user: ThrownMovie.to_user.username,
-//         release_data: ThrownMovie.movie.release_data,
-//         vote_average: ThrownMovie.movie.vote_average,
-//         poster_path: ThrownMovie.movie.poster_path
-//       };
-//       showModal.value = true;
-//     }
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+
 const generateRandomStyle = () => {
   const size = `${Math.random() * 50 + 20}px`;
   const top = `${Math.random() * 100}vh`;
@@ -219,7 +195,7 @@ const generateRandomStyle = () => {
 
 onMounted(() => {
   movieStore.getLatedMovieList();
-  setInterval(fetchThrownMovies, 1000000); // 20초마다 요청
+  setInterval(fetchThrownMovies, 10000); // 20초마다 요청
 });
 </script>
 
