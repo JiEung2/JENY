@@ -28,7 +28,7 @@
       </div>
     </nav>
     <RouterView />
-    <div v-if="showModal" class="modal fade show fireworks" tabindex="-1" role="dialog" style="display: block;">
+    <div v-if="showModal" class="modal fade custom-animation show fireworks" tabindex="-1" role="dialog" style="display: block;">
       <div class="modal-dialog modal-dialog-centered custom-modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -52,9 +52,6 @@
             </div>
           </div>
         </div>
-        <!-- <div class="fireworks-container">
-          <div v-for="n in 30" :key="n" class="firework" :style="generateRandomStyle()"></div>
-        </div> -->
       </div>
     </div>
   </div>
@@ -160,7 +157,7 @@ const goToMyPage = () => {
       }
     }
   })
-  .then((response) => {
+  .then(() => {
     router.push({ 
     name: 'MyPageView', 
     params: {
@@ -171,7 +168,6 @@ const goToMyPage = () => {
   .catch((error) => {
     console.error(error)
   })
-  
 }
 
 const generateRandomStyle = () => {
@@ -232,54 +228,14 @@ body {
   max-width: 600px; /* 모달의 최대 너비 조정 */
 }
 
-.fireworks {
-  animation: fireworks-animation 1s ease-out;
-}
-
-@keyframes fireworks-animation {
-  0% { opacity: 0; transform: scale(0.5); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
 .modal-body {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 폭죽 애니메이션 */
-.fireworks-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none; /* 모달 외부 클릭 방지 */
-  z-index: 1050; /* 모달 위에 표시되도록 설정 */
-  overflow: hidden;
-}
 
-.firework {
-  position: absolute;
-  border-radius: 50%;
-  animation: firework-animation 1.5s ease-out infinite;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-}
 
-@keyframes firework-animation {
-  0% {
-    transform: scale(0) translate(-50%, -50%);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.5) translate(-50%, -50%);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(2) translate(-50%, -50%);
-    opacity: 0;
-  }
-}
 .custom-link-btn {
     text-decoration: none; /* 밑줄 제거 */
     color: white; /* 기본 텍스트 색상 사용 */
@@ -289,5 +245,110 @@ body {
 }
 .custom-link-btn:hover {
     text-decoration: none; /* 호버 시에도 밑줄 제거 */
+}
+/* .modal {
+  animation:ball 1s ease-in Infinite Alternate;
+}
+@keyframes ball {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(300px);
+  }
+} */
+
+@keyframes JamesBond {
+  0% {
+    transform: translateX(1000px);
+  }
+  80% {
+    transform: translateX(0px);
+  }
+  90% {
+    border-radius: 3px;
+  }
+  100% {
+    border-radius: 3px;
+  }
+}
+
+@keyframes modalContentFadeIn {
+  0% {
+    opacity: 0;
+    top: -20px;
+  }
+  100% {
+    opacity: 1;
+    top: 0;
+  }
+}
+
+@keyframes slowFade {
+  0% {
+    opacity: 1;
+  }
+  99.9% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+@keyframes fadeToRed {
+  0% {
+    box-shadow: inset 0 0 0 rgba(201, 24, 24, 0.8);
+  }
+  100% {
+    box-shadow: inset 0 2000px 0 rgba(201, 24, 24, 0.8);
+  }
+}
+
+@keyframes killShot {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(400px) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes modalContentFadeOut {
+  0% {
+    opacity: 1;
+    top: 0;
+  }
+  100% {
+    opacity: 0;
+    top: -20px;
+  }
+}
+
+.modal.custom-animation .modal-dialog {
+  animation: JamesBond 1.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.modal.custom-animation .modal-header h5,
+.modal.custom-animation .modal-body p {
+  opacity: 0;
+  position: relative;
+  animation: modalContentFadeIn 0.5s 1.4s linear forwards;
+}
+
+.modal.custom-animation.out {
+  animation: slowFade 0.5s 1.5s linear forwards;
+}
+
+.modal.custom-animation.out .modal-dialog {
+  animation: killShot 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.modal.custom-animation.out .modal-header h5,
+.modal.custom-animation.out .modal-body p {
+  animation: modalContentFadeOut 0.5s 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 </style>
