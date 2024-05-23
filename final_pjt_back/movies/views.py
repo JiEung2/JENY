@@ -7,11 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.conf import settings
 from django.utils import timezone
-from datetime import datetime, timedelta
 from krwordrank.word import summarize_with_keywords
 from django.contrib.auth import get_user_model
 from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
 from .models import Movie, Genre, Comment, Thrown_Movie
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def getMovieData(request):
@@ -137,7 +137,11 @@ def popular(request): # 인기 영화 조회
 @permission_classes([IsAuthenticated])
 def popular_many(request): # 초반 인기 영화 선택
   user = request.user
-  if user.see or (user.updated_at and (datetime.now() - user.updated_at).total_seconds() > 60):
+  if user.see or (user.updated_at and (timezone.now() - user.updated_at).total_seconds() < 60):
+
+    if user.is_selected:
+      return Response(status=status.HTTP_200_OK)
+
     user.see = True
     user.save()
     popular_movies = Movie.objects.order_by('-popularity')[:100]
@@ -145,15 +149,17 @@ def popular_many(request): # 초반 인기 영화 선택
     return Response(serializer.data, status=status.HTTP_200_OK)
   else:
     return Response(status=status.HTTP_200_OK)
-  
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def no_see(request):
   user = request.user
   user.see = False
-  user.updated_at = datetime.now()
+  user.updated_at = timezone.now()
   user.save()
   return Response(status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def late_release(request): # 최근 개봉한 영화 조회
@@ -196,6 +202,18 @@ def likes_movie(request, movie_id): # movie 좋아요
     user.like_movies.add(movie)
     liked = True
   return Response({'liked': liked}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_movies(request):
+    user = request.user
+    movie_ids = request.data.get('movies', [])
+    for movie_id in movie_ids:
+      movie = get_object_or_404(Movie, id=movie_id)
+      user.like_movies.add(movie)
+    user.is_selected = True
+    user.save()
+    return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
