@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="card-body">
+    <div class="card-body align-items-center">
       <h5 class="text-light">{{ props.user.username }}</h5>
       <p v-if="props.user.introduce === ''"><small class="text-secondary">자기소개가 없습니다.</small></p>
       <p v-else><small class="text-secondary">간단한 소개: {{ props.user.introduce }}</small></p>
 
       <p class="card-text" v-if="props.user.mbti === ''"><small class="text-secondary">mbti가 존재하지 않습니다.</small></p>
       <p class="card-text" v-else><small class="text-secondary">mbti: {{ props.user.mbti }}</small></p>
+      <div class="word-cloud" style="padding-top: 30px 0 20px 0;">
+        <UserWordCloud :defaultWords="defaultWords"/>
+      </div>
     </div>
 
-    <div class="word-cloud" style="padding-top: 30px 0 20px 0;">
-      <UserWordCloud :defaultWords="defaultWords"/>
-    </div>
 
   </div>
 </template>

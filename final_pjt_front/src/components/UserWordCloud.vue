@@ -1,5 +1,5 @@
 <template>
-  <h5 class="title text-white">선호하는 장르</h5>
+  <h5 class="title text-white text-center mt-4">선호하는 장르</h5>
   <div v-if="!hasError && defaultWords" >
     <vue-word-cloud
       style="height: 240px; width: 320px;"

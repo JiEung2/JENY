@@ -8,4 +8,5 @@ urlpatterns = [
     path('follow/<int:user_id>/', views.follow),
     path('is_followed/<int:user_id>/', views.is_followed),
     path('get_followings/', views.get_followings),
+    path('search_user/<str:username>/', views.search_user)
 ]

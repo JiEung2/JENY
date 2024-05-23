@@ -27,7 +27,7 @@
     <h2>리뷰</h2>
     
     <div>
-      <div v-for="(comment, index) in movieComments" :key="index" style="display: flex; align-items: center; padding: 10px;">
+      <div v-for="(comment, index) in visibleComments" :key="index" style="display: flex; align-items: center; padding: 10px;">
         <div style="margin-right: 10px;">
           <img v-if="comment.userName['image']" :src="API_URL + comment.userName['image']" class="img-fluid rounded-circle" alt="..." @click="showUserProfile(comment.user)" style="cursor: pointer; width: 50px; height: 50px;">
           <img v-else src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDBJhKc_AmFlxPGktgktgKpzusO8p6mryOtw&s" class="img-fluid rounded-circle" alt="..." style="width: 50px; height: 50px;">
@@ -48,14 +48,15 @@
           <a v-if="comment.isEditing" @click="cancelEdit(comment)" style="padding-left: 5px; text-decoration: underline; color: gray;">취소</a>
         </div>
       </div>
+      <button class="btn btn-secondary" v-if="visibleComments.length < movieComments.length" @click="loadMoreComments" style="margin: 20px; padding: 10px 20px;">더보기</button>
     </div>
 
 
     <div style="padding: 50px;">
-      <form @submit="handleSubmit">
-      <input type="text" name="content" placeholder="댓글을 입력하세요." v-model="commentContent" style="width: 300px;">
-      <button type="submit" value="작성"> 작성</button>
-    </form>
+      <form @submit="handleSubmit" class="form-inline">
+        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" name="content" placeholder="댓글을 입력하세요." v-model="commentContent" style="width: 300px; display: inline-block; margin-right: 10px;">
+        <button type="submit" class="btn btn-primary" value="작성" style="display: inline-block;">작성</button>
+      </form>
     </div>
     <div>
       <WordCloud/>
@@ -93,6 +94,7 @@ const genres = ref([])
 const userId = ref([])
 const userName = ref([])
 const movieComments = ref(props.movieComment.map(comment => ({ ...comment, isEditing: false, editContent: comment.content })))
+const visibleComments = ref(movieComments.value.slice(0, 10));
 const API_URL = import.meta.env.VITE_API_URL;
 const USER_TOKEN = accountStore.token;
 
@@ -116,7 +118,7 @@ const fetchComments = () => {
         editContent: comment.content,
         userName: '' // 댓글 작성자의 이름을 담을 속성
       }));
-      // 작성자의 이름을 가져오기 위해 fetchUserNames 함수 호출
+      visibleComments.value = movieComments.value.slice(0, 10);
       fetchUserNames(movieComments.value);
     })
     .catch(error => {
@@ -125,7 +127,6 @@ const fetchComments = () => {
 };
 
 const fetchUserNames = (comments) => {
-  // 각 댓글의 작성자의 이름을 가져오는 비동기 함수
   comments.forEach(comment => {
     axios({
       method: 'get',
@@ -135,7 +136,6 @@ const fetchUserNames = (comments) => {
         }
     })
       .then(response => {
-        // 댓글 작성자의 이름을 댓글 객체에 설정
         comment.userName = response.data;
       })
       .catch(error => {
@@ -186,7 +186,6 @@ const showUserProfile = (user_id) => {
   router.push({ name: 'MyPageView', params: { id: user_id } });
 };
 
-// 장르 가져오는 axios
 axios({
   method: 'get',
   url: `http://127.0.0.1:8000/api/v1/movies/getMovieGenres/${movieId}/`,
@@ -201,7 +200,6 @@ axios({
     console.log(error);
   });
 
-// userId 가져오는 axios
 axios({
   method: 'get',
   url: 'http://127.0.0.1:8000/api/v1/movies/getUserId/',
@@ -216,7 +214,6 @@ axios({
     console.log(error);
   });
 
-// 좋아요 기능 구현
 const like = () => {
   axios({
     method: 'post',
@@ -233,7 +230,6 @@ const like = () => {
     });
 };
 
-// 좋아요 되어있는지 확인하는 기능 구현
 const get_is_like = () => {
   axios({
     method: 'get',
@@ -253,7 +249,7 @@ const get_is_like = () => {
 const fetchProfiles = () => {
   axios({
     method: 'get',
-    url: `${API_URL}/accounts/get_followings/`,  // 이 URL은 실제 API 엔드포인트로 변경되어야 합니다.
+    url: `${API_URL}/accounts/get_followings/`,  
     headers: {
       Authorization: `Token ${USER_TOKEN}`
     }
@@ -296,6 +292,11 @@ const updateComment = (comment) => {
 const cancelEdit = (comment) => {
   comment.isEditing = false;
   comment.editContent = comment.content;
+};
+
+const loadMoreComments = () => {
+  const nextIndex = visibleComments.value.length;
+  visibleComments.value = movieComments.value.slice(0, nextIndex + 10);
 };
 
 onMounted(() => {
@@ -348,10 +349,15 @@ onMounted(() => {
 }
 
 .img-fluid {
-  width: 50px; /* 이미지 너비 고정 */
-  height: 50px; /* 이미지 높이 고정 */
-  object-fit: cover; /* 이미지가 컨테이너를 채우도록 */
-  border-radius: 50%; /* 원형 이미지 */
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.form-inline {
+  display: flex;
+  align-items: center;
 }
 
 </style>
