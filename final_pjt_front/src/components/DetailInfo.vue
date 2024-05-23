@@ -6,7 +6,7 @@
     <div class="movie-container">
       <img v-if="is_liked" @click="like" src="@/assets/like.png" alt="like" style="width: 50px;">
       <img @click="like" v-else src="@/assets/dislike.png" alt="dislike" style="width: 50px;">
-      <img @click="fetchProfiles" src="@/assets/throw.png" alt="throw" style="width: 50px;"><br><br>
+      <img @click="fetchProfiles" src="@/assets/throw.png" alt="throw" style="width: 60px;"><br><br>
     </div>
     <div class="movie-details">
       <h2>{{ movieDetail[0].title }}</h2><br><br>

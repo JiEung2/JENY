@@ -8,7 +8,7 @@
       <p class="card-text" v-if="user.mbti === ''"><small class="text-secondary">mbti를 등록해보세요.</small></p>
       <p class="card-text" v-else><small class="text-secondary">mbti: {{ user.mbti }}</small></p>
       
-      <div class="word-cloud" style="padding-top: 30px 0 20px 0;">
+      <div class="word-cloud" style="padding-top: 30px 0 20px 0; ">
         <UserWordCloud :defaultWords="defaultWords"/>
       </div>
 
@@ -170,4 +170,9 @@ const updateProfile = () => {
 .text-danger {
   color: #e50914 !important; /* 넷플릭스 스타일의 빨간색 오류 메시지 */
 }
+.word-cloud {
+  margin: 0 auto;
+  text-align: center; /* Optional: center the text inside the word cloud */
+}
+
 </style>
