@@ -1,5 +1,6 @@
 <template>
   <CarouselView />
+  <RecommendationMovieList />
   <PopularMovieListView />
   <LatedMovieList />
   <PreviewView />
@@ -18,6 +19,7 @@ import LatedMovieList from '@/views/LatedMovieList.vue';
 import CarouselView from '@/views/CarouselView.vue';
 import PreviewView from '@/views/PreviewView.vue';
 import LikeModal from '@/components/LikeModal.vue';
+import RecommendationMovieList from '@/components/RecommendationMovieList.vue';
 import { useAccountStore } from '@/stores/account';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';

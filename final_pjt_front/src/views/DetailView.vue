@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <DetailPreview />
+    <DetailPreview :src="youtubeSrc"/>
     <br>
     <br>
     <DetailInfo :id="id" :movieDetail="movieDetail" :movieComment="movieComment"/>
@@ -27,7 +27,9 @@ const route = useRoute()
 const movieDetail = ref([])
 const movieComment = ref([])
 const id = route.params.id
-
+const movieName = ref('')
+const youtubeSrc = ref('')
+const youtubeKey = import.meta.env.VITE_YOUTUBE_API_KEY
 const props = defineProps({
   id: {
     type: String,
@@ -43,6 +45,8 @@ axios({
   })
     .then(response => {
       movieDetail.value = response.data
+      movieName.value = movieDetail.value[0].title + ' 공식 예고편'
+      console.log(movieName.value)
     })
     .then(response => {
       axios({
@@ -59,9 +63,43 @@ axios({
           console.log(error)
         })
     })
+    .then(response => {
+      get_youtube_src()
+    })
     .catch(error => {
       console.log(error)
     })
+
+const get_youtube_src = function() {
+  axios({
+    method: 'get',
+    url: 'https://www.googleapis.com/youtube/v3/search',
+    params: {
+      part: 'snippet',
+      maxResults: 1,
+      q: movieName.value,
+      type: 'video',
+      key: youtubeKey
+    }
+  })
+  .then((response) => {
+    if (response.data.items.length > 0) {
+      console.log(response.data.items[0].id.videoId);
+      const youtubeId = response.data.items[0].id.videoId;
+      const youtubeData = {
+        src: `https://www.youtube.com/embed/${youtubeId}`,
+        thumbnail: `https://img.youtube.com/vi/${youtubeId}/0.jpg`,
+        title: movieName.value,
+      };
+      youtubeSrc.value=youtubeData;
+    } else {
+      console.log(`No YouTube video found for ${movieName.value}`);
+    }
+  })
+  .catch((error) => {
+    console.error(`Failed to fetch YouTube video for ${movieName.value}:`, error);
+  });
+}
 
 </script>
 

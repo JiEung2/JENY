@@ -395,6 +395,7 @@ def get_is_liked(request, movie_id):
     return Response(context, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getUserName(request, user_id):
     try:
         User = get_user_model()
@@ -403,4 +404,56 @@ def getUserName(request, user_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recommendation(request):
+    user = request.user
+    movies = user.like_movies.all()
+    genres_list = []
+
+    # Count genres from liked movies
+    for movie in movies:
+        for genre in movie.genre.all():
+            genres_list.append(genre.name)
+
+    genre_count = Counter(genres_list)
+    most_common_genres = genre_count.most_common()
+
+    recommended_movies = []
+    recommended_movie_ids = set()
+
+    # Fetch movies based on genre frequency and popularity
+    for genre, count in most_common_genres:
+        if len(recommended_movies) >= 10:
+            break
+        genre_movies = Movie.objects.filter(genre__name=genre).exclude(id__in=movies.values_list('id', flat=True)).order_by('-popularity')
+        
+        if genre == most_common_genres[0][0]:
+            genre_movies = genre_movies[:5]
+        elif genre == most_common_genres[1][0]:
+            genre_movies = genre_movies[:3]
+        elif genre == most_common_genres[2][0]:
+            genre_movies = genre_movies[:2]
+
+        for movie in genre_movies:
+            if len(recommended_movies) < 10 and movie.id not in recommended_movie_ids:
+                recommended_movies.append(movie)
+                recommended_movie_ids.add(movie.id)
+            else:
+                break
+
+    # If we don't have enough recommendations, fill the rest with popular movies
+    if len(recommended_movies) < 10:
+        needed = 10 - len(recommended_movies)
+        popular_movies = Movie.objects.exclude(id__in=recommended_movie_ids).order_by('-popularity')[:needed]
+        for movie in popular_movies:
+            if movie.id not in recommended_movie_ids:
+                recommended_movies.append(movie)
+                recommended_movie_ids.add(movie.id)
+
+    # Serialize the recommended movies
+    serializer = MovieSerializer(recommended_movies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
