@@ -7,6 +7,10 @@
 
       <p class="card-text" v-if="user.mbti === ''"><small class="text-secondary">mbti를 등록해보세요.</small></p>
       <p class="card-text" v-else><small class="text-secondary">mbti: {{ user.mbti }}</small></p>
+      
+      <div class="word-cloud" style="padding-top: 30px 0 20px 0;">
+        <UserWordCloud :defaultWords="defaultWords"/>
+      </div>
 
       <div v-if="isEditing">
         <form @submit.prevent="updateProfile">
@@ -35,6 +39,7 @@
 import { ref } from 'vue';
 import { useAccountStore } from '@/stores/account';
 import axios from 'axios';
+import UserWordCloud from '@/components/UserWordCloud.vue'
 
 const accountStore = useAccountStore();
 const API_URL = accountStore.API_URL;
@@ -44,6 +49,7 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  defaultWords: Array
 });
 
 const emit = defineEmits(['profile-updated']);
@@ -152,14 +158,14 @@ const updateProfile = () => {
   color: #1c1c1e;
 }
 
-.btn-primary {
+/* .btn-primary {
   background-color: #e50914;
   border: none;
-}
-
+} */
+/* 
 .btn-primary:hover {
-  background-color: #f40612;
-}
+  background-color: blue;
+} */
 
 .text-danger {
   color: #e50914 !important; /* 넷플릭스 스타일의 빨간색 오류 메시지 */

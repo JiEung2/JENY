@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
 from .models import Movie, Genre, Comment, Thrown_Movie
 from django.shortcuts import get_object_or_404
+from accounts.serializers import UserSerializer
 
 # Create your views here.
 def getMovieData(request):
@@ -127,36 +128,36 @@ def getGenreData(request):
 
 @api_view(['GET'])
 def popular(request): # 인기 영화 조회
-  popular_movies = Movie.objects.order_by('-popularity')[:15]
-  serializer = MovieSerializer(popular_movies, many=True)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+    popular_movies = Movie.objects.order_by('-popularity')[:15]
+    serializer = MovieSerializer(popular_movies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def popular_many(request): # 초반 인기 영화 선택
-  user = request.user
-  if user.see or (user.updated_at and (timezone.now() - user.updated_at).total_seconds() < 60):
+def popular_many(request):  # 초반 인기 영화 선택
+    user = request.user
+    if user.see or (user.updated_at and (timezone.now() - user.updated_at).total_seconds() < 60):
+        if user.is_selected:
+            return Response(status=status.HTTP_200_OK)
 
-    if user.is_selected:
-      return Response(status=status.HTTP_200_OK)
+        user.see = True
+        user.save()
+        popular_movies = Movie.objects.order_by('-popularity')[:100]
+        serializer = MovieSerializer(popular_movies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_200_OK)
 
-    user.see = True
-    user.save()
-    popular_movies = Movie.objects.order_by('-popularity')[:100]
-    serializer = MovieSerializer(popular_movies, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-  else:
-    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def no_see(request):
-  user = request.user
-  user.see = False
-  user.updated_at = timezone.now()
-  user.save()
-  return Response(status=status.HTTP_200_OK)
+    user = request.user
+    user.see = False
+    user.updated_at = timezone.now()
+    user.save()
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -200,8 +201,8 @@ def like_movies(request):
     user = request.user
     movie_ids = request.data.get('movies', [])
     for movie_id in movie_ids:
-      movie = get_object_or_404(Movie, id=movie_id)
-      user.like_movies.add(movie)
+        movie = get_object_or_404(Movie, id=movie_id)
+        user.like_movies.add(movie)
     user.is_selected = True
     user.save()
     return Response(status=status.HTTP_200_OK)
@@ -209,11 +210,11 @@ def like_movies(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def liked_movies(request, username):
-  User = get_user_model()
-  user = User.objects.get(username=username)
-  movies = user.like_movies.all()
-  serializer = MovieSerializer(movies, many=True)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+    User = get_user_model()
+    user = User.objects.get(username=username)
+    movies = user.like_movies.all()
+    serializer = MovieSerializer(movies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -316,11 +317,11 @@ def throw_movie(request, movie_id, username):
     to_user = User.objects.get(username=username)
     if from_user != to_user:
         movie = Movie.objects.get(id=movie_id)
-    Thrown_Movie.objects.create(
-      to_user=to_user,
-      from_user=from_user,
-      movie=movie,
-    )
+        Thrown_Movie.objects.create(
+            to_user=to_user,
+            from_user=from_user,
+            movie=movie,
+        )
 
         return Response({"message": "Movie throw successfully"}, status=status.HTTP_201_CREATED)
     else:
@@ -359,8 +360,9 @@ def get_sent_movies(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_liked_genres(request):
-    user = request.user
+def get_liked_genres(request, user_id):
+    User = get_user_model()
+    user = User.objects.get(id=user_id)
     movies = user.like_movies.all()
     genres_list = []
 
@@ -397,7 +399,8 @@ def getUserName(request, user_id):
     try:
         User = get_user_model()
         user = User.objects.get(id=user_id)
-        return Response(user.username, status=status.HTTP_200_OK)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 

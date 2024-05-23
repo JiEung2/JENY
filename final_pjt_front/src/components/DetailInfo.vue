@@ -27,16 +27,29 @@
     <h2>리뷰</h2>
     
     <div>
-      <div v-for="(comment, index) in movieComments" style="display: flex; justify-content: space-between; padding: 10px;" >
-        <span>
-          <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.userName }}</a>: {{ comment.content }}
-        </span>
-        <span>
-          <a v-if="comment.user === userId" type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
-          <a v-if="comment.user === userId" type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;" @click="commentDelete(comment.id)">삭제</a>
-        </span>
+      <div v-for="(comment, index) in movieComments" :key="index" style="display: flex; align-items: center; padding: 10px;">
+        <div style="margin-right: 10px;">
+          <img v-if="comment.userName['image']" :src="API_URL + comment.userName['image']" class="img-fluid rounded-circle" alt="..." @click="showUserProfile(comment.user)" style="cursor: pointer; width: 50px; height: 50px;">
+          <img v-else src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDBJhKc_AmFlxPGktgktgKpzusO8p6mryOtw&s" class="img-fluid rounded-circle" alt="..." style="width: 50px; height: 50px;">
+        </div>
+        <div style="flex-grow: 1; text-align: left;">
+          <div>
+            <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.userName['username'] }} </a>
+          </div>
+          <div>
+            <span v-if="!comment.isEditing">{{ comment.content }}</span>
+            <input v-else v-model="comment.editContent" style="width: 300px;">
+          </div>
+        </div>
+        <div>
+          <a v-if="comment.user === userId && !comment.isEditing" @click="editComment(comment)" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
+          <a v-if="comment.user === userId && !comment.isEditing" @click="commentDelete(comment.id)" style="padding-left: 5px; text-decoration: underline; color: gray;">삭제</a>
+          <a v-if="comment.isEditing" @click="updateComment(comment)" style="padding-left: 5px; text-decoration: underline; color: gray;">저장</a>
+          <a v-if="comment.isEditing" @click="cancelEdit(comment)" style="padding-left: 5px; text-decoration: underline; color: gray;">취소</a>
+        </div>
       </div>
     </div>
+
 
     <div style="padding: 50px;">
       <form @submit="handleSubmit">
@@ -44,9 +57,10 @@
       <button type="submit" value="작성"> 작성</button>
     </form>
     </div>
+    <div>
       <WordCloud/>
     </div>
-
+  
     <ThrowModal v-if="showModal" :users="profiles" :movie="movieDetail[0]" @close="closeModal" />
   </div>
 </template>
@@ -78,7 +92,7 @@ const movieId = props.id
 const genres = ref([])
 const userId = ref([])
 const userName = ref([])
-const movieComments = ref([...props.movieComment])
+const movieComments = ref(props.movieComment.map(comment => ({ ...comment, isEditing: false, editContent: comment.content })))
 const API_URL = import.meta.env.VITE_API_URL;
 const USER_TOKEN = accountStore.token;
 
@@ -98,6 +112,8 @@ const fetchComments = () => {
     .then(response => {
       movieComments.value = response.data.map(comment => ({
         ...comment,
+        isEditing: false,
+        editContent: comment.content,
         userName: '' // 댓글 작성자의 이름을 담을 속성
       }));
       // 작성자의 이름을 가져오기 위해 fetchUserNames 함수 호출
@@ -255,6 +271,33 @@ const closeModal = () => {
   showModal.value = false;
 };
 
+const editComment = (comment) => {
+  comment.isEditing = true;
+};
+
+const updateComment = (comment) => {
+  axios({
+    method: 'put',
+    url: `http://127.0.0.1:8000/api/v1/movies/${movieId}/comments/${comment.id}/`,
+    headers: {
+      Authorization: `Token ${accountStore.token}`
+    },
+    data: { content: comment.editContent }
+  })
+    .then(response => {
+      comment.isEditing = false;
+      fetchComments();
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+const cancelEdit = (comment) => {
+  comment.isEditing = false;
+  comment.editContent = comment.content;
+};
+
 onMounted(() => {
   fetchComments();
   get_is_like()
@@ -303,4 +346,12 @@ onMounted(() => {
 .movie-details p {
   margin: 5px 20px;
 }
+
+.img-fluid {
+  width: 50px; /* 이미지 너비 고정 */
+  height: 50px; /* 이미지 높이 고정 */
+  object-fit: cover; /* 이미지가 컨테이너를 채우도록 */
+  border-radius: 50%; /* 원형 이미지 */
+}
+
 </style>

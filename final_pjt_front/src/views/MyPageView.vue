@@ -16,23 +16,29 @@
         </div>
         <div class="col-md-8">
           <div v-if="me.username === user.username">
-            <MyInfo :user="me" @profile-updated="handleProfileUpdated"/>
+            <MyInfo :user="me" @profile-updated="handleProfileUpdated" :defaultWords="defaultWords"/>
           </div>
           <div v-else>
-            <UserInfo :user="user" />
+            <UserInfo :user="user" :defaultWords="defaultWords"/>
           </div>
+
         </div>
       </div>
     </div>
+    <br>
+
     <div class="container" v-if="me.username === user.username">
-      <ThrowMovie />
-      <CatchedMovie />
+      <ThrowMovie /><br><br>
+      <hr style="width: 100%; border: 1px solid white; margin: 20px 0;">
+      <CatchedMovie /><br><br>
+      <hr style="width: 100%; border: 1px solid white; margin: 20px 0;">
     </div>
     <div class="container">
       <LikedMovie :likedMovies="likedMovies"/>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { defineProps, ref, onMounted } from 'vue';
@@ -48,6 +54,7 @@ const accountStore = useAccountStore();
 const API_URL = accountStore.API_URL;
 const likedMovies = ref([]);
 const is_followed = ref(false);
+const defaultWords = ref([]);
 
 const props = defineProps({
   id: {
@@ -136,6 +143,24 @@ const getUserInfo = function() {
       console.log(likedMovies.value);
     }).catch ((error)=> {
       console.log(error);
+    });
+  })
+  .then((response) => {
+    axios({
+      method: 'get',
+      url: `http://127.0.0.1:8000/api/v1/get_liked_genres/${user.value.id}/`,
+      headers: {
+        Authorization: `Token ${accountStore.token}`
+      }
+    })
+    .then(res => {
+      defaultWords.value = res.data;
+      console.log(defaultWords.value)
+      console.log(1)
+    })
+    .catch(err => {
+      console.log(err);
+      hasError.value = true;
     });
   })
   .catch((error) => {
@@ -271,4 +296,6 @@ onMounted(() => {
 .btn-follow:hover, .btn-unfollow:hover {
   background-color: #555; /* 호버 시 약간 더 밝은 배경색 */
 }
+
+
 </style>

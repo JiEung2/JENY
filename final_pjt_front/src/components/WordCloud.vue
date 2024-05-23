@@ -27,7 +27,6 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAccountStore } from '@/stores/account'
 
-// const USER_TOKEN = ref(import.meta.env.VITE_USER_TOKEN)
 const accountStore = useAccountStore()
 const route = useRoute()
 const id = route.params.id
