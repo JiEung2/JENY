@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="header">예고편</h4>
+    <h4 class="header">최신 상영작 예고편</h4>
   </div>
   <div class="carousel-container">
     <button class="scroll-button left" @click="scrollLeft">←</button>

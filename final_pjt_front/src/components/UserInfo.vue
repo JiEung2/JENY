@@ -8,12 +8,18 @@
       <p class="card-text" v-if="props.user.mbti === ''"><small class="text-secondary">mbti가 존재하지 않습니다.</small></p>
       <p class="card-text" v-else><small class="text-secondary">mbti: {{ props.user.mbti }}</small></p>
     </div>
+
+    <div class="word-cloud" style="padding-top: 30px 0 20px 0;">
+      <UserWordCloud :defaultWords="defaultWords"/>
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import { defineProps, ref, onMounted, watch } from 'vue';
 import { useAccountStore } from '@/stores/account';
+import UserWordCloud from './UserWordCloud.vue';
 
 const accountStore = useAccountStore();
 const API_URL = accountStore.API_URL;
@@ -23,6 +29,7 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  defaultWords:Array
 });
 
 </script>
