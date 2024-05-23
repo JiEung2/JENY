@@ -22,3 +22,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['introduce', 'mbti', 'image']
 
+class FollowingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'username', 'image']

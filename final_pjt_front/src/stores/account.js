@@ -13,6 +13,8 @@ export const useAccountStore = defineStore('account', () => {
     }
   })
 
+  
+
   const logout = ()=> {
     token.value = null
     localStorage.removeItem('token');

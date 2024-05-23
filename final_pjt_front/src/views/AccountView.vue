@@ -30,8 +30,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import SignUpComponent from './SignUpComponent.vue';
-import LogInComponent from './LogInComponent.vue';
+import SignUpComponent from '@/views/SignUpComponent.vue';
+import LogInComponent from '@/views/LogInComponent.vue';
 
 const checked = ref(false)
 const route = useRoute()

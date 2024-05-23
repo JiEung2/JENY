@@ -4,9 +4,9 @@
     <br>
     <img class="movie-poster" :src="'https://image.tmdb.org/t/p/w500' + movieDetail[0].poster_path" alt="movie_poster">
     <div class="movie-container">
-      <img src="@/assets/dislike.png" alt="dislike" style="width: 50px;">
-      <img src="@/assets/like.png" alt="like" style="width: 50px;">
-      <img src="@/assets/throw.png" alt="throw" style="width: 50px;"><br><br>
+      <img v-if="is_liked" @click="like" src="@/assets/like.png" alt="like" style="width: 50px;">
+      <img @click="like" v-else src="@/assets/dislike.png" alt="dislike" style="width: 50px;">
+      <img @click="fetchProfiles" src="@/assets/throw.png" alt="throw" style="width: 50px;"><br><br>
     </div>
     <div class="movie-details">
       <h2>{{ movieDetail[0].title }}</h2><br><br>
@@ -29,7 +29,7 @@
     <div>
       <div v-for="(comment, index) in movieComments" style="display: flex; justify-content: space-between; padding: 10px;" >
         <span>
-          {{ comment.userName }}: {{ comment.content }}
+          <a @click="showUserProfile(comment.user)" style="cursor: pointer; color: #007BFF;">{{ comment.userName }}</a>: {{ comment.content }}
         </span>
         <span>
           <a v-if="comment.user === userId" type="submit" style="padding-left: 5px; text-decoration: underline; color: gray;">수정</a>
@@ -45,15 +45,20 @@
     </form>
     </div>
       <WordCloud/>
+    </div>
+
+    <ThrowModal v-if="showModal" :users="profiles" :movie="movieDetail[0]" @close="closeModal" />
   </div>
 </template>
 
 <script setup>
 import { defineProps } from 'vue';
 import WordCloud from './WordCloud.vue';
+import ThrowModal from '@/components/ThrowModal.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-import { useAccountStore } from '@/stores/account'
+import { useAccountStore } from '@/stores/account';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   id: {
@@ -63,17 +68,24 @@ const props = defineProps({
     type: Object,
   },
   movieComment: {
-    type: Object,
+    type: Array,
   },
 });
 
+const router = useRouter();
 const accountStore = useAccountStore()
 const movieId = props.id
 const genres = ref([])
 const userId = ref([])
 const userName = ref([])
 const movieComments = ref([...props.movieComment])
+const API_URL = import.meta.env.VITE_API_URL;
+const USER_TOKEN = accountStore.token;
+
 const commentContent = ref('');
+const is_liked = ref(false);
+const showModal = ref(false);
+const profiles = ref([]);
 
 const fetchComments = () => {
   axios({
@@ -117,9 +129,9 @@ const fetchUserNames = (comments) => {
 };
 
 const handleSubmit = (event) => {
-  event.preventDefault()
-  const formData = new FormData(event.target)
-  const content = formData.get('content')
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const content = formData.get('content');
 
   axios({
     method: 'post',
@@ -130,16 +142,15 @@ const handleSubmit = (event) => {
     data: { content }
   })
     .then(response => {
-      commentContent.value = ''
-      console.log('댓글이 성공적으로 생성되었습니다.')
-      fetchComments()
+      commentContent.value = '';
+      fetchComments();
     })
     .catch(error => {
-      console.log(error)
-    })
-}
+      console.log(error);
+    });
+};
 
-const commentDelete = function (commentId) {
+const commentDelete = (commentId) => {
   axios({
     method: 'delete',
     url: `http://127.0.0.1:8000/api/v1/movies/${movieId}/comments/${commentId}/`,
@@ -148,46 +159,105 @@ const commentDelete = function (commentId) {
     }
   })
     .then(response => {
-      console.log('댓글 삭제가 완료되었습니다.')
-      fetchComments()
+      fetchComments();
     })
     .catch(error => {
-      console.log(error)
-    })
-}
+      console.log(error);
+    });
+};
+
+const showUserProfile = (user_id) => {
+  router.push({ name: 'MyPageView', params: { id: user_id } });
+};
 
 // 장르 가져오는 axios
 axios({
   method: 'get',
   url: `http://127.0.0.1:8000/api/v1/movies/getMovieGenres/${movieId}/`,
   headers: {
-      Authorization: `Token ${accountStore.token}`
-    }
+    Authorization: `Token ${accountStore.token}`
+  }
 })
   .then(response => {
-    genres.value = response.data
+    genres.value = response.data;
   })
   .catch(error => {
-    console.log(error)
-})
+    console.log(error);
+  });
 
 // userId 가져오는 axios
 axios({
   method: 'get',
   url: 'http://127.0.0.1:8000/api/v1/movies/getUserId/',
   headers: {
-      Authorization: `Token ${accountStore.token}`
-    }
+    Authorization: `Token ${accountStore.token}`
+  }
 })
   .then(response => {
-    userId.value = response.data
+    userId.value = response.data;
   })
   .catch(error => {
-    console.log(error)
-})
+    console.log(error);
+  });
+
+// 좋아요 기능 구현
+const like = () => {
+  axios({
+    method: 'post',
+    url: `${API_URL}/api/v1/movies/${movieId}/likes/`,
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      is_liked.value = response.data.liked;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+// 좋아요 되어있는지 확인하는 기능 구현
+const get_is_like = () => {
+  axios({
+    method: 'get',
+    url: `${API_URL}/api/v1/movies/${movieId}/get_is_liked/`,
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      is_liked.value = response.data.is_liked;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+const fetchProfiles = () => {
+  axios({
+    method: 'get',
+    url: `${API_URL}/accounts/get_followings/`,  // 이 URL은 실제 API 엔드포인트로 변경되어야 합니다.
+    headers: {
+      Authorization: `Token ${USER_TOKEN}`
+    }
+  })
+    .then(response => {
+      profiles.value = response.data;
+      showModal.value = true;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
 
 onMounted(() => {
   fetchComments();
+  get_is_like()
 });
 </script>
 
@@ -201,19 +271,19 @@ onMounted(() => {
   background-color: #1e1e1e;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: auto; /* Adjust width as needed */
-  margin: 0 auto; /* 좌우 여백 자동 설정으로 가운데 정렬 */
+  width: auto;
+  margin: 0 auto;
 }
 
 .movie-poster {
-  width: 400px; /* Adjust width based on your poster size */
+  width: 400px;
   margin-bottom: 20px;
 }
 
 .movie-summary {
-  padding: 0 20px; /* 좌우 20px의 안쪽 여백 적용 */
-  text-align: center; /* 텍스트를 가운데 정렬 */
-  margin: 0 auto; /* 가운데 정렬을 위해 좌우 여백을 자동 설정 */
+  padding: 0 20px;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .movie-container {
@@ -227,10 +297,10 @@ onMounted(() => {
 .movie-details {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Expands to fill remaining space */
+  width: 100%;
 }
 
 .movie-details p {
-  margin: 5px 20px; /* Adjust left and right margin as needed */
+  margin: 5px 20px;
 }
 </style>

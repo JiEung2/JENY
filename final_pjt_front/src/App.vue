@@ -18,7 +18,7 @@
               <RouterLink :to="{ name: 'signup' }" class="link text-white"><button type="button" class="btn btn-danger">회원가입</button></RouterLink>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin">
-              <RouterLink :to="{ name: 'MyPageView' }" class="link text-white">마이페이지</RouterLink>
+              <button class="btn btn-link custom-link-btn" @click="goToMyPage">마이페이지</button>
             </li>
             <li class="nav-item ms-3" v-if="accountStore.isLogin">
               <button type="button" class="btn btn-danger" @click="logout">로그아웃</button>
@@ -73,7 +73,15 @@ const movieStore = useMovieStore()
 const accountStore = useAccountStore()
 
 const showModal = ref(false)
-
+const me = ref({
+  id: '',
+  username: '',
+  followings: 0,
+  followers: 0,
+  introduce: '',
+  mbti: '',
+  image: '',
+})
 const modalData = ref({
   title: '',
   message: '',
@@ -130,31 +138,42 @@ const fetchThrownMovies = async () => {
   }
 }
 
-// const fetchThrownMovies = async () => {
-//   try {
-//     const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
-//       headers: {
-//         Authorization: `Token ${accountStore.token}`
-//       }
-//     });
-//     const thrownMovie = response.data;
-//     if (thrownMovie.length > 0) {
-//       const ThrownMovie = thrownMovie;
-//       modalData.value = {
-//         title: ThrownMovie.movie.title,
-//         message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
-//         from_user: ThrownMovie.from_user.username,
-//         to_user: ThrownMovie.to_user.username,
-//         release_data: ThrownMovie.movie.release_data,
-//         vote_average: ThrownMovie.movie.vote_average,
-//         poster_path: ThrownMovie.movie.poster_path
-//       };
-//       showModal.value = true;
-//     }
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+const goToMyPage = () => {
+  axios({
+    method:'get',
+    url: `${API_URL}/accounts/my_profile/`,
+    headers: {
+      Authorization: `Token ${accountStore.token}`
+    }
+  })
+  .then((response) => {
+    const tmp_user = response.data;
+    if(tmp_user) {
+      me.value = {
+        id: tmp_user.id, 
+        username: tmp_user.username,
+        followings: tmp_user.followings_count,
+        followers: tmp_user.followers_count,
+        introduce: tmp_user.introduce,
+        mbti: tmp_user.mbti,
+        image: tmp_user.image,
+      }
+    }
+  })
+  .then((response) => {
+    router.push({ 
+    name: 'MyPageView', 
+    params: {
+      id: me.value.id,
+    },
+  })
+  })
+  .catch((error) => {
+    console.error(error)
+  })
+  
+}
+
 const generateRandomStyle = () => {
   const size = `${Math.random() * 50 + 20}px`;
   const top = `${Math.random() * 100}vh`;
@@ -176,7 +195,7 @@ const generateRandomStyle = () => {
 
 onMounted(() => {
   movieStore.getLatedMovieList();
-  setInterval(fetchThrownMovies, 1000000); // 20초마다 요청
+  setInterval(fetchThrownMovies, 10000); // 20초마다 요청
 });
 </script>
 
@@ -260,5 +279,15 @@ body {
     transform: scale(2) translate(-50%, -50%);
     opacity: 0;
   }
+}
+.custom-link-btn {
+    text-decoration: none; /* 밑줄 제거 */
+    color: white; /* 기본 텍스트 색상 사용 */
+    padding: 0; /* 기본 패딩 제거 */
+    background: none; /* 배경색 제거 */
+    border: none; /* 테두리 제거 */
+}
+.custom-link-btn:hover {
+    text-decoration: none; /* 호버 시에도 밑줄 제거 */
 }
 </style>

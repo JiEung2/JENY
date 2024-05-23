@@ -49,7 +49,7 @@ axios({
         method: 'get',
         url: `${API_URL}/api/v1/movies/${id}/comments/`,
         headers: {
-          Authorization: `Token ${accountStore.token}`
+          Authorization: `Token ${USER_TOKEN}`
         }
       })
         .then(response => {

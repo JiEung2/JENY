@@ -11,6 +11,7 @@ from krwordrank.word import summarize_with_keywords
 from django.contrib.auth import get_user_model
 from .serializers import MovieSerializer, CommentSerializer, GenreSerializer, ThrownMovieSerializer
 from .models import Movie, Genre, Comment, Thrown_Movie
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def getMovieData(request):
@@ -126,9 +127,37 @@ def getGenreData(request):
 
 @api_view(['GET'])
 def popular(request): # 인기 영화 조회
-    popular_movies = Movie.objects.order_by('-popularity')[:10]
+  popular_movies = Movie.objects.order_by('-popularity')[:15]
+  serializer = MovieSerializer(popular_movies, many=True)
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def popular_many(request): # 초반 인기 영화 선택
+  user = request.user
+  if user.see or (user.updated_at and (timezone.now() - user.updated_at).total_seconds() < 60):
+
+    if user.is_selected:
+      return Response(status=status.HTTP_200_OK)
+
+    user.see = True
+    user.save()
+    popular_movies = Movie.objects.order_by('-popularity')[:100]
     serializer = MovieSerializer(popular_movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+  else:
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def no_see(request):
+  user = request.user
+  user.see = False
+  user.updated_at = timezone.now()
+  user.save()
+  return Response(status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def late_release(request): # 최근 개봉한 영화 조회
@@ -151,13 +180,6 @@ def search_movie(request, movie_name): # 영화 제목으로 영화 조회
     serializer = MovieSerializer(find_movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def search_genre(request, genre_id):  # 장르 조회
-#   genre = Genre.objects.get(id = genre_id)
-#   serializer = GenreSerializer(genre)
-#   return Response(serializer.data, status=status.HTTP_200_OK)
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def likes_movie(request, movie_id): # movie 좋아요
@@ -172,13 +194,26 @@ def likes_movie(request, movie_id): # movie 좋아요
         liked = True
     return Response({'liked': liked}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_movies(request):
+    user = request.user
+    movie_ids = request.data.get('movies', [])
+    for movie_id in movie_ids:
+      movie = get_object_or_404(Movie, id=movie_id)
+      user.like_movies.add(movie)
+    user.is_selected = True
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def my_like_movies(request):
-    user = request.user
-    movies = user.like_movies.all()
-    serializer = MovieSerializer(movies, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+def liked_movies(request, username):
+  User = get_user_model()
+  user = User.objects.get(username=username)
+  movies = user.like_movies.all()
+  serializer = MovieSerializer(movies, many=True)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -281,12 +316,11 @@ def throw_movie(request, movie_id, username):
     to_user = User.objects.get(username=username)
     if from_user != to_user:
         movie = Movie.objects.get(id=movie_id)
-
-        thrown_movie = Thrown_Movie.objects.create(
-            to_user=to_user,
-            from_user=from_user,
-            movie=movie,
-        )
+    Thrown_Movie.objects.create(
+      to_user=to_user,
+      from_user=from_user,
+      movie=movie,
+    )
 
         return Response({"message": "Movie throw successfully"}, status=status.HTTP_201_CREATED)
     else:
@@ -366,3 +400,4 @@ def getUserName(request, user_id):
         return Response(user.username, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
