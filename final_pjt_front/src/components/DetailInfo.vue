@@ -44,6 +44,7 @@
       <button type="submit" value="작성"> 작성</button>
     </form>
     </div>
+    <div>
       <WordCloud/>
     </div>
 
