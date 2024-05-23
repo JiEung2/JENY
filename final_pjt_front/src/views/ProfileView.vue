@@ -2,6 +2,9 @@
   <div class="container mt-4">
     <div class="card mb-3 custom-card" style="max-width: 100%;">
       <div class="row g-0 align-items-center">
+        <div class="d-flex justify-content-end pe-3 pt-3">
+          <button class="close-button" @click="goBack">x</button>
+        </div>
         <div class="d-flex flex-column align-items-center mt-3">
           <img v-if="user.image" :src="API_URL + user.image" class="img-fluid rounded-circle" alt="...">
           <img v-else src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDBJhKc_AmFlxPGktgktgKpzusO8p6mryOtw&s" class="img-fluid rounded-circle" alt="...">
@@ -38,22 +41,23 @@
   </div>
 </template>
 
-
 <script setup>
 import { defineProps, ref, onMounted } from 'vue';
 import { useAccountStore } from '@/stores/account';
 import axios from 'axios';
-import ThrowMovie from '@/views/ThrowMovie.vue';
-import CatchedMovie from '@/views/CatchedMovie.vue';
-import LikedMovie from '@/views/LikedMovie.vue';
+import ThrowMovie from '@/components/ThrowMovie.vue';
+import CatchedMovie from '@/components/CatchedMovie.vue';
+import LikedMovie from '@/components/LikedMovie.vue';
 import MyInfo from '@/components/MyInfo.vue';
 import UserInfo from '@/components/UserInfo.vue';
+import { useRouter } from 'vue-router';
 
 const accountStore = useAccountStore();
 const API_URL = accountStore.API_URL;
 const likedMovies = ref([]);
 const is_followed = ref(false);
 const defaultWords = ref([]);
+const router = useRouter();
 
 const props = defineProps({
   id: {
@@ -147,7 +151,7 @@ const getUserInfo = function() {
   .then((response) => {
     axios({
       method: 'get',
-      url: `http://127.0.0.1:8000/api/v1/get_liked_genres/${user.value.id}/`,
+      url: `${API_URL}/api/v1/get_liked_genres/${user.value.id}/`,
       headers: {
         Authorization: `Token ${accountStore.token}`
       }
@@ -207,6 +211,10 @@ const follow = function() {
 const handleProfileUpdated = (updated_info) => {
   user.value = { ...user.value, ...updated_info };
   me.value = { ...me.value, ...updated_info };
+};
+
+const goBack = () => {
+  router.go(-1);
 };
 
 onMounted(() => {
@@ -296,5 +304,17 @@ onMounted(() => {
   background-color: #555; /* 호버 시 약간 더 밝은 배경색 */
 }
 
+.close-button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 30px;
+  cursor: pointer;
+  transition: color 200ms linear;
+}
 
+.close-button:hover {
+  color: #dbd9d9;
+  scale: 1.1;
+}
 </style>

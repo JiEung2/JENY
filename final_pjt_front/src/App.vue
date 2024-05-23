@@ -5,9 +5,6 @@
         <RouterLink to="/"><img src="@/assets/logo.png" alt="Logo" width="70" height="27" class="d-inline-block align-text-top"></RouterLink>
         <div class="collapse navbar-collapse d-flex justify-content-end align-items-center" id="navbarNav">
           <ul class="navbar-nav ms-auto d-flex align-items-center">
-            <!-- <li class="nav-item ms-3">
-              <RouterLink to="/" class="link text-white"><img src="@/assets/bell.png" alt="bell" height="27"></RouterLink>
-            </li> -->
             <li class="nav-item ms-3">
               <RouterLink :to="{ name: 'SearchView' }" class="link text-white"><img src="@/assets/search.png" alt="search" height="27"></RouterLink>
             </li>
@@ -33,10 +30,10 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{{ modalData.message }}</h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
+            <button type="button" class="btn-close" @click="closeModal">X</button>
           </div>
           <div class="modal-body d-flex justify-content-center align-items-center">
-            <div class="card mb-3" style="max-width: 540px;">
+            <div @click="goToDetailPage(modalData)" class="card mb-3 custom-card">
               <div class="row g-0">
                 <div class="col-md-4">
                   <img v-if="modalData.poster_path" :src="'https://image.tmdb.org/t/p/w500' + modalData.poster_path" class="img-fluid rounded-start movie-poster" :alt="modalData.title">
@@ -44,8 +41,8 @@
                 <div class="col-md-8">
                   <div class="card-body">
                     <h5 class="card-title">{{ modalData.title }}</h5>
-                    <p class="card-text"><small class="text-muted">{{ modalData.release_data }}</small></p>
-                    <p class="card-text"><small class="text-muted"><img class="star-icon" src="@/assets/star-icon.png" alt="">{{ modalData.vote_average }}</small></p>
+                    <p class="card-text"><small class="text-white">{{ modalData.release_data }}</small></p>
+                    <p class="card-text"><small class="text-white"><img class="star-icon" src="@/assets/star-icon.png" alt="">{{ modalData.vote_average }}</small></p>
                   </div>
                 </div>
               </div>
@@ -61,7 +58,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useAccountStore } from '@/stores/account';
 import { onMounted, ref } from 'vue';
-import { useMovieStore } from '@/stores/counter';
+import { useMovieStore } from '@/stores/movie';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -80,6 +77,7 @@ const me = ref({
   image: '',
 })
 const modalData = ref({
+  id: '',
   title: '',
   message: '',
   from_user: '',
@@ -109,30 +107,44 @@ const closeModal = () => {
   showModal.value = false;
 }
 
-const fetchThrownMovies = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/thrown_movies/`, {
-      headers: {
-        Authorization: `Token ${accountStore.token}`
-      }
-    });
-    const thrownMovie = response.data;
-    if (thrownMovie) {
-      const ThrownMovie = thrownMovie;
-      modalData.value = {
-        title: ThrownMovie.movie.title,
-        message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
-        from_user: ThrownMovie.from_user.username,
-        to_user: ThrownMovie.to_user.username,
-        release_data: ThrownMovie.movie.release_data,
-        vote_average: ThrownMovie.movie.vote_average,
-        poster_path: ThrownMovie.movie.poster_path
-      };
-      showModal.value = true;
+const goToDetailPage = (movie) => {
+  showModal.value = false;
+  router.push({ 
+    name: 'DetailView', 
+    params: {
+      id: movie.id,
+    },
+  })
+}
+
+const fetchThrownMovies = function() {
+  axios({
+    method: 'get',
+    url: `${API_URL}/api/v1/thrown_movies/`,
+    headers: {
+      Authorization: `Token ${accountStore.token}`
     }
-  } catch (error) {
+  })
+    .then((response) => {
+      const thrownMovie = response.data;
+      if (thrownMovie) {
+        const ThrownMovie = thrownMovie;
+        modalData.value = {
+          id: ThrownMovie.movie.id,
+          title: ThrownMovie.movie.title,
+          message: `${ThrownMovie.from_user.username}님이 당신에게 '${ThrownMovie.movie.title}'를 던졌습니다.`,
+          from_user: ThrownMovie.from_user.username,
+          to_user: ThrownMovie.to_user.username,
+          release_data: ThrownMovie.movie.release_data,
+          vote_average: ThrownMovie.movie.vote_average,
+          poster_path: ThrownMovie.movie.poster_path
+        };
+        showModal.value = true;
+      }
+    })
+    .catch ((error)=> {
     console.error(error);
-  }
+    })
 }
 
 const goToMyPage = () => {
@@ -170,28 +182,9 @@ const goToMyPage = () => {
   })
 }
 
-const generateRandomStyle = () => {
-  const size = `${Math.random() * 50 + 20}px`;
-  const top = `${Math.random() * 100}vh`;
-  const left = `${Math.random() * 100}vw`;
-  const animationDelay = `${Math.random()}s`;
-  const animationDuration = `${Math.random() * 0.5 + 1}s`;
-  const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF3387'];
-  const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-  return {
-    width: size,
-    height: size,
-    top: top,
-    left: left,
-    backgroundColor: backgroundColor,
-    animationDelay: animationDelay,
-    animationDuration: animationDuration
-  };
-}
-
 onMounted(() => {
   movieStore.getLatedMovieList();
-  setInterval(fetchThrownMovies, 10000); // 20초마다 요청
+  setInterval(fetchThrownMovies, 10000); // 10초마다 요청
 });
 </script>
 
@@ -234,30 +227,76 @@ body {
   align-items: center;
 }
 
-
-
 .custom-link-btn {
-    text-decoration: none; /* 밑줄 제거 */
-    color: white; /* 기본 텍스트 색상 사용 */
-    padding: 0; /* 기본 패딩 제거 */
-    background: none; /* 배경색 제거 */
-    border: none; /* 테두리 제거 */
+  text-decoration: none; /* 밑줄 제거 */
+  color: white; /* 기본 텍스트 색상 사용 */
+  padding: 0; /* 기본 패딩 제거 */
+  background: none; /* 배경색 제거 */
+  border: none; /* 테두리 제거 */
 }
-.custom-link-btn:hover {
-    text-decoration: none; /* 호버 시에도 밑줄 제거 */
-}
-/* .modal {
-  animation:ball 1s ease-in Infinite Alternate;
-}
-@keyframes ball {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(300px);
-  }
-} */
 
+.custom-link-btn:hover {
+  text-decoration: none; /* 호버 시에도 밑줄 제거 */
+}
+
+.modal.custom-animation .modal-dialog {
+  animation: JamesBond 1.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.modal.custom-animation .modal-header h5,
+.modal.custom-animation .modal-body .card-title,
+.modal.custom-animation .modal-body .card-text {
+  opacity: 0;
+  position: relative;
+  animation: modalContentFadeIn 0.5s 1.4s linear forwards;
+}
+
+.modal.custom-animation.out {
+  animation: slowFade 0.5s 1.5s linear forwards;
+}
+
+.modal.custom-animation.out .modal-dialog {
+  animation: killShot 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.modal.custom-animation.out .modal-header h5,
+.modal.custom-animation.out .modal-body .card-title,
+.modal.custom-animation.out .modal-body .card-text {
+  animation: modalContentFadeOut 0.5s 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.modal-content {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.modal-header h5,
+.modal-body p,
+.modal-body .card-text {
+  color: white;
+}
+
+.custom-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.custom-card:hover{
+  box-shadow: 0 8px 16px #D00448;
+  scale: 1.1;
+}
+
+.custom-card .card-title,
+.custom-card .card-text,
+.custom-card .text-white {
+  color: white !important;
+}
+
+/* 애니메이션 정의 */
 @keyframes JamesBond {
   0% {
     transform: translateX(1000px);
@@ -328,27 +367,16 @@ body {
   }
 }
 
-.modal.custom-animation .modal-dialog {
-  animation: JamesBond 1.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+.btn-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
 }
 
-.modal.custom-animation .modal-header h5,
-.modal.custom-animation .modal-body p {
-  opacity: 0;
-  position: relative;
-  animation: modalContentFadeIn 0.5s 1.4s linear forwards;
-}
-
-.modal.custom-animation.out {
-  animation: slowFade 0.5s 1.5s linear forwards;
-}
-
-.modal.custom-animation.out .modal-dialog {
-  animation: killShot 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-}
-
-.modal.custom-animation.out .modal-header h5,
-.modal.custom-animation.out .modal-body p {
-  animation: modalContentFadeOut 0.5s 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+.btn-close:hover {
+  color: #ff4b5c;
 }
 </style>

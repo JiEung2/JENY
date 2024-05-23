@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
+import MovieItemView from '@/components/MovieItem.vue';
 import axios from 'axios';
 import { defineProps, ref, onMounted } from 'vue';
 import { useAccountStore } from '@/stores/account';

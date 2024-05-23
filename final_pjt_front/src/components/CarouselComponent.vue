@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { useMovieStore } from '@/stores/counter';
+import { useMovieStore } from '@/stores/movie';
 import { onMounted } from 'vue';
 
 const movieStore = useMovieStore();

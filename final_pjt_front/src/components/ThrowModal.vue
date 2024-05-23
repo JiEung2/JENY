@@ -90,6 +90,11 @@ const closeModal = () => {
   color: white;
 }
 
+.close-button:hover {
+  color: rgb(233, 232, 232);
+  scale: 1.1;
+}
+
 .profiles {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

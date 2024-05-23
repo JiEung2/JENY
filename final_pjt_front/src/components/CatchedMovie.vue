@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h4 class="header">내가 던진 영화</h4>
+    <h4 class="header">내가 받은 영화</h4>
   </div>
-  <div class="carousel-container" v-if="throwMovies.length">
+  <div class="carousel-container"  v-if="throwMovies.length">
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
       <div class="movie-row">
@@ -17,11 +17,11 @@
     </div>
     <button class="scroll-button right" @click="scrollRight">→</button>
   </div>
-  <div v-else> <h6 class="content">아직 던진 영화가 없습니다.</h6></div>
+  <div><h6 class="content">아직 받은 영화가 없습니다.</h6></div>
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
+import MovieItemView from '@/components/MovieItem.vue';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import { useAccountStore } from '@/stores/account';
@@ -36,7 +36,7 @@ const movieContainer = ref(null); // ref 선언
 
 const getThrowMovies = async function() {
   try {
-    const response = await axios.get(`${API_URL}/api/v1/get_sent_movies/`, {
+    const response = await axios.get(`${API_URL}/api/v1/get_catched_movies/`, {
       headers: {
         Authorization: `Token ${accountStore.token}`
       }
@@ -90,7 +90,7 @@ const goToDetailPage = (movie) => {
   font-weight: 600; /* 폰트 굵기 설정 */
 }
 
-.content{
+.content {
   margin-top: 20px;
   margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
   color: white; /* 글씨가 흐리지 않도록 검은색 지정 */

@@ -14,9 +14,9 @@
 </template>
 
 <script setup>
-import PopularMovieListView from '@/views/PopularMovieListView.vue';
-import LatedMovieList from '@/views/LatedMovieList.vue';
-import CarouselView from '@/views/CarouselView.vue';
+import PopularMovieListView from '@/components/PopularMovieList.vue';
+import LatedMovieList from '@/components/LatedMovieList.vue';
+import CarouselView from '@/components/CarouselComponent.vue';
 import PreviewView from '@/views/PreviewView.vue';
 import LikeModal from '@/components/LikeModal.vue';
 import RecommendationMovieList from '@/components/RecommendationMovieList.vue';

@@ -5,9 +5,9 @@ import HomeView from '../views/HomeView.vue'
 import SearchView from '@/views/SearchView.vue'
 import DetailView from '@/views/DetailView.vue'
 import AccountView from '@/views/AccountView.vue'
-import LogInComponent from '@/views/LogInComponent.vue'
-import SignUpComponent from '@/views/SignUpComponent.vue'
-import MyPageView from '@/views/MyPageView.vue'
+import LogInComponent from '@/components/LogInComponent.vue'
+import SignUpComponent from '@/components/SignUpComponent.vue'
+import ProfileView from '@/views/ProfileView.vue'
 import UserInfo from '@/components/UserInfo.vue'
 
 
@@ -44,7 +44,7 @@ const router = createRouter({
     {
       path: '/my_page/:id',
       name: 'MyPageView',
-      component: MyPageView,
+      component: ProfileView,
       props: true
     },
   ]

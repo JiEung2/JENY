@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
+import MovieItemView from '@/components/MovieItem.vue';
 import { useAccountStore } from '@/stores/account';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

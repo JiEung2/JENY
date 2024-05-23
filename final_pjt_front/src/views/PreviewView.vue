@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { useMovieStore } from '@/stores/counter';
+import { useMovieStore } from '@/stores/movie';
 import { onMounted, ref } from 'vue';
-import PreviewItemView from './PreviewItemView.vue';
+import PreviewItemView from '../components/PreviewItem.vue';
 
 const movieStore = useMovieStore();
 const movieContainer = ref(null);

@@ -1,74 +1,50 @@
 <template>
   <div>
-    <h4 class="header">내가 받은 영화</h4>
+    <h4 class="header">인기 영화</h4>
   </div>
-  <div class="carousel-container"  v-if="throwMovies.length">
+  <div class="carousel-container">
     <button class="scroll-button left" @click="scrollLeft">←</button>
     <div class="movie-container" ref="movieContainer">
       <div class="movie-row">
         <div
-          @click="goToDetailPage(movie.movie)" 
+          @click="goToDetailPage(movie)" 
           class="movie-card-wrapper" 
-          v-for="movie in throwMovies" 
-          :key="movie.movie.id">
-          <MovieItemView :movie="movie.movie" />
+          v-for="movie in movieStore.popularMovies" 
+          :key="movie.id">
+          <MovieItemView :movie="movie" />
         </div>
       </div>
     </div>
     <button class="scroll-button right" @click="scrollRight">→</button>
   </div>
-  <div><h6 class="content">아직 받은 영화가 없습니다.</h6></div>
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
-import axios from 'axios';
-import { ref, onMounted } from 'vue';
-import { useAccountStore } from '@/stores/account';
+import MovieItemView from '@/components/MovieItem.vue';
+import { useMovieStore } from '@/stores/movie';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter(); // router 변수 선언
-const accountStore = useAccountStore();
-const API_URL = accountStore.API_URL;
-
-const throwMovies = ref([]);
-const movieContainer = ref(null); // ref 선언
-
-const getThrowMovies = async function() {
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/get_catched_movies/`, {
-      headers: {
-        Authorization: `Token ${accountStore.token}`
-      }
-    });
-    console.log(response);
-    throwMovies.value = response.data;
-    console.log(throwMovies.value);
-  } catch (error) {
-    console.log(error);
-  }
-};
+const movieStore = useMovieStore();
+const movieContainer = ref(null);
+const router = useRouter()
 
 onMounted(() => {
-  getThrowMovies();
+  movieStore.getPopularMovieList();
 });
 
 const scrollLeft = () => {
-  if (movieContainer.value) {
-    movieContainer.value.scrollBy({
-      left: -500,
-      behavior: 'smooth',
-    });
-  }
+  movieContainer.value.scrollBy({
+    left: -500,
+    behavior: 'smooth',
+  });
 };
 
 const scrollRight = () => {
-  if (movieContainer.value) {
-    movieContainer.value.scrollBy({
-      left: 500,
-      behavior: 'smooth',
-    });
-  }
+  movieContainer.value.scrollBy({
+    left: 500,
+    behavior: 'smooth',
+  });
 };
 
 const goToDetailPage = (movie) => {
@@ -77,20 +53,12 @@ const goToDetailPage = (movie) => {
     params: {
       id: movie.id,
     },
-  });
-};
+  })
+}
 </script>
 
 <style scoped>
 .header {
-  margin-top: 20px;
-  margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
-  color: white; /* 글씨가 흐리지 않도록 검은색 지정 */
-  font-family: "Noto Sans KR", sans-serif; /* 폰트 패밀리 설정 */
-  font-weight: 600; /* 폰트 굵기 설정 */
-}
-
-.content {
   margin-top: 20px;
   margin-left: 5rem; /* 오른쪽으로 더 이동하도록 마진 추가 */
   color: white; /* 글씨가 흐리지 않도록 검은색 지정 */
@@ -181,4 +149,5 @@ const goToDetailPage = (movie) => {
 .movie-card-wrapper:hover {
   transform: scale(1.05); /* 마우스 호버 시 크기 1.1배로 확대 */
 }
+
 </style>

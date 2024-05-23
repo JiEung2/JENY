@@ -79,6 +79,6 @@ def get_followings(request):
 @permission_classes([IsAuthenticated])
 def search_user(request, username):
     User = get_user_model()
-    user = get_object_or_404(User, username=username)
-    serialzer = UserSerializer(user)
+    users = User.objects.filter(username__icontains=username)
+    serialzer = UserSerializer(users, many=True)
     return Response(serialzer.data)

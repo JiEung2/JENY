@@ -126,15 +126,17 @@ def getGenreData(request):
 
     return render(request, 'getData.html')
 
+# 인기 영화 조회
 @api_view(['GET'])
-def popular(request): # 인기 영화 조회
+def popular(request): 
     popular_movies = Movie.objects.order_by('-popularity')[:15]
     serializer = MovieSerializer(popular_movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 초반 인기 영화 선택
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def popular_many(request):  # 초반 인기 영화 선택
+def popular_many(request):  
     user = request.user
     if user.see or (user.updated_at and (timezone.now() - user.updated_at).total_seconds() < 60):
         if user.is_selected:
@@ -149,7 +151,7 @@ def popular_many(request):  # 초반 인기 영화 선택
         return Response(status=status.HTTP_200_OK)
 
 
-
+# 더이상 보지 않음
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def no_see(request):
@@ -159,31 +161,34 @@ def no_see(request):
     user.save()
     return Response(status=status.HTTP_200_OK)
 
-
+# 최근 개봉한 영화 조회
 @api_view(['GET'])
-def late_release(request): # 최근 개봉한 영화 조회
+def late_release(request): 
     today = timezone.now().date()
     late_movies = Movie.objects.filter(release_data__lte=today).exclude(overview="").order_by('-release_data')[:10]
     serializer = MovieSerializer(late_movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 영화 디테일 가져오기
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getMovieDetail(request, movie_id):  # 영화 디테일 가져오기
+def getMovieDetail(request, movie_id):  
     movie = Movie.objects.filter(id=movie_id)
     serializer = MovieSerializer(movie, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 영화 제목으로 영화 조회
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def search_movie(request, movie_name): # 영화 제목으로 영화 조회
+def search_movie(request, movie_name): 
     find_movies = Movie.objects.filter(title__icontains=movie_name)
     serializer = MovieSerializer(find_movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# movie 좋아요
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def likes_movie(request, movie_id): # movie 좋아요
+def likes_movie(request, movie_id): 
     movie = Movie.objects.get(id = movie_id)
     user = request.user
     print(user)
@@ -195,6 +200,7 @@ def likes_movie(request, movie_id): # movie 좋아요
         liked = True
     return Response({'liked': liked}, status=status.HTTP_200_OK)
 
+# 여러 movie 좋아요
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_movies(request):
@@ -207,6 +213,7 @@ def like_movies(request):
     user.save()
     return Response(status=status.HTTP_200_OK)
 
+# 좋아요 누른 영화 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def liked_movies(request, username):
@@ -216,6 +223,7 @@ def liked_movies(request, username):
     serializer = MovieSerializer(movies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 둘 다 좋아하는 영화 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def search_both_like(request, username):
@@ -229,17 +237,19 @@ def search_both_like(request, username):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 해당 movie_id의 모든 댓글 조회
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def comment_list(request, movie_id): # 해당 movie_id의 모든 댓글 조회
+def comment_list(request, movie_id): 
     if request.method == 'GET': 
         comments = Comment.objects.filter(movie_id=movie_id)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
+# 해당 movie_id에 댓글 작성
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_create(request, movie_id): # 해당 movie_id에 댓글 작성
+def comment_create(request, movie_id): 
     if request.method == 'POST': 
         movie = Movie.objects.get(pk=movie_id)
         serializer = CommentSerializer(data=request.data)
@@ -247,9 +257,10 @@ def comment_create(request, movie_id): # 해당 movie_id에 댓글 작성
             serializer.save(movie=movie, user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+# 단일 댓글 조회, 삭제, 수정
 @api_view(['GET', 'DELETE', 'PUT']) 
 @permission_classes([IsAuthenticated])
-def comment_detail(request, movie_id, comment_id): # 단일 댓글 조회, 삭제, 수정
+def comment_detail(request, movie_id, comment_id): 
     comment = Comment.objects.get(pk=comment_id)
     if request.method == 'GET':
         serializer = CommentSerializer(comment)
@@ -265,35 +276,7 @@ def comment_detail(request, movie_id, comment_id): # 단일 댓글 조회, 삭�
             serializer.save()
             return Response(serializer.data)
     
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def rewiew_wordcloud(request, movie_id):
-    movie = Movie.objects.get(id=movie_id)
-    reviews = movie.movie_comment.all()
-    
-    texts = []
-    for review in reviews:
-        texts.append(review.content)
-    
-    stopwords = {
-        "정말", "너무", "좀", "기대했던", "특히", "정말로", "매우", "아주", "너무", "많이", 
-        "다시", "더", "더러", "이", "있", "하", "것", "들", "그", "되", "수", "보", "않", "없", "나", "사람", "주", "아니", "등", 
-        "같", "우리", "때", "년", "가", "한", "지", "대하", "오", "말", "일", "그렇", "위하", "때문", "그것", "두", "말하", "알", 
-        "그러나", "받", "못하", "그런", "또", "문제", "사회", "많", "그리고", "좋", "크", "따르", "중", "나오", "가지", "씨", "시간", 
-        "만들", "지금", "생각하", "그러", "속", "하나", "집", "살", "모르", "적", "월", "데", "자신", "안", "어떤", "내", "내", 
-        "경우", "명", "생각", "시작", "우리", "다시", "이런", "그녀", "이러", "앞", "보이", "번", "나", "다른", "어떻", "전", "말", 
-        "로", "이렇", "약", "분", "영화", "하게", "있어요.", "되는", "콩과",
-    }
-    keywords = summarize_with_keywords(texts, min_count=2, max_length=10, 
-        beta=0.85, max_iter=10, stopwords=stopwords, verbose=True)
-    wordlist = []
-
-    for key, val in keywords.items():
-        temp = [key, int(val*100)]
-        wordlist.append(temp)
-
-    return Response(wordlist)
-
+# 영화의 장르 반환
 @api_view(['GET'])
 def getMovieGenres(request, movie_id):
     movie = Movie.objects.get(id=movie_id)
@@ -304,11 +287,13 @@ def getMovieGenres(request, movie_id):
 
     return Response(genre_names)
 
+# 나의 아이디 반환
 @api_view(['GET'])
 def getUserId(request):
     user_id = request.user.id
     return Response(user_id)
 
+# 영화 던지기
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def throw_movie(request, movie_id, username):
@@ -327,6 +312,7 @@ def throw_movie(request, movie_id, username):
     else:
         return Response({"message": "You can't throw yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
+# 받은 영화 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def thrown_movies(request):
@@ -358,6 +344,7 @@ def get_sent_movies(request):
     # print(serializer.data)
     return Response(serializer.data)
 
+# 장르를 좋아하고 있는지 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_liked_genres(request, user_id):
@@ -378,6 +365,7 @@ def get_liked_genres(request, user_id):
         data.append([genre, count])
     return Response(data)
 
+# 영화를 좋아하고 있는지 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_is_liked(request, movie_id):
@@ -394,6 +382,7 @@ def get_is_liked(request, movie_id):
     }
     return Response(context, status=status.HTTP_200_OK)
 
+# id로 유저 반환
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserName(request, user_id):
@@ -405,6 +394,8 @@ def getUserName(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
+# 추천 알고리즘
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommendation(request):
@@ -457,3 +448,31 @@ def recommendation(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def rewiew_wordcloud(request, movie_id):
+    movie = Movie.objects.get(id=movie_id)
+    reviews = movie.movie_comment.all()
+    
+    texts = []
+    for review in reviews:
+        texts.append(review.content)
+    
+    stopwords = {
+        "정말", "너무", "좀", "기대했던", "특히", "정말로", "매우", "아주", "너무", "많이", 
+        "다시", "더", "더러", "이", "있", "하", "것", "들", "그", "되", "수", "보", "않", "없", "나", "사람", "주", "아니", "등", 
+        "같", "우리", "때", "년", "가", "한", "지", "대하", "오", "말", "일", "그렇", "위하", "때문", "그것", "두", "말하", "알", 
+        "그러나", "받", "못하", "그런", "또", "문제", "사회", "많", "그리고", "좋", "크", "따르", "중", "나오", "가지", "씨", "시간", 
+        "만들", "지금", "생각하", "그러", "속", "하나", "집", "살", "모르", "적", "월", "데", "자신", "안", "어떤", "내", "내", 
+        "경우", "명", "생각", "시작", "우리", "다시", "이런", "그녀", "이러", "앞", "보이", "번", "나", "다른", "어떻", "전", "말", 
+        "로", "이렇", "약", "분", "영화", "하게", "있어요.", "되는", "콩과",
+    }
+    keywords = summarize_with_keywords(texts, min_count=2, max_length=10, 
+        beta=0.85, max_iter=10, stopwords=stopwords, verbose=True)
+    wordlist = []
+
+    for key, val in keywords.items():
+        temp = [key, int(val*100)]
+        wordlist.append(temp)
+
+    return Response(wordlist)

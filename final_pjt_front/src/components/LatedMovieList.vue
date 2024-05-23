@@ -20,8 +20,8 @@
 </template>
 
 <script setup>
-import MovieItemView from '@/views/MovieItemView.vue';
-import { useMovieStore } from '@/stores/counter';
+import MovieItemView from '@/components/MovieItem.vue';
+import { useMovieStore } from '@/stores/movie';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
