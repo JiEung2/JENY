@@ -427,12 +427,12 @@ def recommendation(request):
         elif genre == most_common_genres[2][0]:
             genre_movies = genre_movies[:2]
 
-        for movie in genre_movies:
-            if len(recommended_movies) < 10 and movie.id not in recommended_movie_ids:
-                recommended_movies.append(movie)
-                recommended_movie_ids.add(movie.id)
-            else:
-                break
+    for movie in genre_movies:
+        if len(recommended_movies) < 10 and movie.id not in recommended_movie_ids:
+            recommended_movies.append(movie)
+            recommended_movie_ids.add(movie.id)
+        else:
+            break
 
     # If we don't have enough recommendations, fill the rest with popular movies
     if len(recommended_movies) < 10:
