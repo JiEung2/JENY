@@ -242,7 +242,7 @@ def search_both_like(request, username):
 @permission_classes([IsAuthenticated])
 def comment_list(request, movie_id): 
     if request.method == 'GET': 
-        comments = Comment.objects.filter(movie_id=movie_id)
+        comments = Comment.objects.filter(movie_id=movie_id).order_by('-created_at')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
@@ -307,7 +307,6 @@ def throw_movie(request, movie_id, username):
             from_user=from_user,
             movie=movie,
         )
-
         return Response({"message": "Movie throw successfully"}, status=status.HTTP_201_CREATED)
     else:
         return Response({"message": "You can't throw yourself"}, status=status.HTTP_400_BAD_REQUEST)

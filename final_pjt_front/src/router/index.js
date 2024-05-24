@@ -1,17 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-// import SignUpView from '@/views/SignUpView.vue'
-// import LogInView from '@/views/LogInView.vue'
 import SearchView from '@/views/SearchView.vue'
 import DetailView from '@/views/DetailView.vue'
 import AccountView from '@/views/AccountView.vue'
 import LogInComponent from '@/components/LogInComponent.vue'
 import SignUpComponent from '@/components/SignUpComponent.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import UserInfo from '@/components/UserInfo.vue'
-
-
-
+import { useAccountStore } from '@/stores/account';  // Import the store
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +45,14 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  const accountStore = useAccountStore();
+  
+  if (!accountStore.isLogin && to.name !== 'login' && to.name !== 'signup' && to.name !== 'home') {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
+});
 
-
-export default router
+export default router;
